@@ -13,4 +13,5 @@ Good examples for hybrid template containers are std::tuple and the boost::fusio
 Licensing
 ---------
 Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
+
 Distributed under the terms of the GPLv2 or newer
