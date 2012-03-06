@@ -10,20 +10,21 @@
 namespace ZTL {
 
 	// TODO: attach extern rt-data via inheritance
+	// TODO: make tree serializable
 
 	template<int Level, int TermLevel, int ... Args>
-		struct node
+		struct Node
 		{
 			enum {
 				level = Level,
 				size = argv_c<level, Args ...>::type::value,
 			};
 
-			typedef node<level  , TermLevel, Args ...> const self_type;
-			typedef node<level-1, TermLevel, Args ...> const up_type;
-			typedef node<level+1, TermLevel, Args ...> const down_type;
+			typedef Node<level  , TermLevel, Args ...> const self_type;
+			typedef Node<level-1, TermLevel, Args ...> const up_type;
+			typedef Node<level+1, TermLevel, Args ...> const down_type;
 
-			constexpr node(up_type const * const p) : up(p), down(this) {}
+			constexpr Node(up_type const * const p) : up(p), down(this) {}
 
 			up_type const * const up;
 
@@ -40,40 +41,40 @@ namespace ZTL {
 		};
 
 
-	// Terminal node/Leaf
+	// Terminal Node/Leaf
 	template<int TermLevel, int ... Args>
-		struct node<TermLevel, TermLevel, Args ...>
+		struct Node<TermLevel, TermLevel, Args ...>
 		{
 			enum {
 				level  = sizeof...(Args),
 				size   = 1,
 			};
 
-			typedef node<level  , TermLevel, Args ...> const self_type;
-			typedef node<level-1, TermLevel, Args ...> const up_type;
+			typedef Node<level  , TermLevel, Args ...> const self_type;
+			typedef Node<level-1, TermLevel, Args ...> const up_type;
 
 			up_type const * const up;
 
-			constexpr node(up_type const * const p) : up(p) {}
+			constexpr Node(up_type const * const p) : up(p) {}
 
 		};
 
 
 	template<int TermLevel, int ... Args>
-		struct node<0, TermLevel, Args...>
+		struct Node<0, TermLevel, Args...>
 		{
 			enum {
 				level  = 0,
 				size   = argv_c<level, Args...>::type::value,
 			};
 
-			typedef node<level  , TermLevel, Args ...> const self_type;
-			typedef node<level+1, TermLevel, Args ...> const down_type;
+			typedef Node<level  , TermLevel, Args ...> const self_type;
+			typedef Node<level+1, TermLevel, Args ...> const down_type;
 
 			typedef Array<down_type, size> array_type;
 			array_type const down;
 
-			constexpr node() : down(this) {}
+			constexpr Node() : down(this) {}
 
 			inline down_type& operator[] (idx_t ii) {
 				return down[ii];
@@ -84,12 +85,9 @@ namespace ZTL {
 			}
 		};
 
-	template<int ... Args>
-		struct tree
-		{
-			constexpr tree() : t() {}
-			node<0, sizeof...(Args), Args...> t;
-		};
-
+	//template<int ... Args>
+		//Node<0, sizeof...(Args), Args...> make_tree() {
+			//return Node<0, sizeof...(Args), Args...>();
+		//}
 
 } // ZTL
