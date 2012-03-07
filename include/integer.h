@@ -11,15 +11,18 @@ namespace ZTL {
 		{
 			static constexpr T value = N;
 
-			inline bool operator<(integral<T,N> const& x)  { return value<x.value; }
-			inline bool operator>(integral<T,N> const& x)  { return value>x.value; }
+			inline bool operator< (integral<T,N> const& x) { return value<x.value; }
+			inline bool operator> (integral<T,N> const& x) { return value>x.value; }
 			inline bool operator==(integral<T,N> const& x) { return value==x.value; }
 			inline bool operator!=(integral<T,N> const& x) { return value!=x.value; }
 			inline bool operator<=(integral<T,N> const& x) { return !(x.value<value); }
 			inline bool operator>=(integral<T,N> const& x) { return !(value<x.value); }
+
 			inline operator T () { return value; }
 		};
 
+	template<typename T, T N>
+		constexpr T integral<T, N>::value;
 
 	// ! integer type
 	template<int N>

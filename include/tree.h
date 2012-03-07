@@ -3,9 +3,8 @@
 // Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "integer.h"
 #include "array.h"
-#include "util.h"
+#include "pack.h"
 
 namespace ZTL {
 
@@ -17,7 +16,7 @@ namespace ZTL {
 		{
 			enum {
 				level = Level,
-				size = argv_c<level, Args ...>::type::value,
+				size = At_c<level, Args ...>::type::value,
 			};
 
 			typedef Node<level  , TermLevel, Args ...> const self_type;
@@ -65,7 +64,7 @@ namespace ZTL {
 		{
 			enum {
 				level  = 0,
-				size   = argv_c<level, Args...>::type::value,
+				size   = At_c<level, Args...>::type::value,
 			};
 
 			typedef Node<level  , TermLevel, Args ...> const self_type;

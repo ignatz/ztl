@@ -33,6 +33,8 @@ def build(bld):
     tests = [
             "test_array.cc",
             "test_tree.cc",
+            "test_pack.cc",
+            "test_numeric.cc",
             ];
 
     bld(

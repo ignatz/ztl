@@ -144,7 +144,7 @@ namespace ZTL {
 
 	template<> struct fibonacci_c<0> { typedef int_<0> type; };
 
-	template<> struct fibonacci_c<1> { typedef int_<0> type; };
+	template<> struct fibonacci_c<1> { typedef int_<1> type; };
 
 	template<typename N>
 		using fibonacci = fibonacci_c<N::value>;
