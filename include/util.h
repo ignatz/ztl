@@ -35,18 +35,4 @@ namespace ZTL {
 					void serialize(Archiver&, unsigned int const) {}
 		};
 
-
-
-	template<bool Expression, typename True, typename False>
-		struct If
-		{
-			typedef True type;
-		};
-
-	template<typename True, typename False>
-		struct If<false, True, False>
-		{
-			typedef False type;
-		};
-
 } // ZTL
