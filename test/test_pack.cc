@@ -26,13 +26,60 @@ TEST(PackTest, ArgumentPackAccess) {
 
 TEST(PackTest, ArgumentPackManipulation) {
 
+	// pop_front
 	ASSERT_TRUE((std::is_same<
 					 my_tuple,
 					 typename PopFront<std::tuple<char, float, double, int, double>>::type
 				 >::value));
 
 	ASSERT_TRUE((std::is_same<
+					 std::tuple<>,
+					 typename PopFront<std::tuple<char, float, double, int, double>, 5>::type
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<my_tuple, typename PopFront<my_tuple, 0>::type>::value));
+
+	// TODO: enable when compiler stops crashing
+	// pop_back
+	//ASSERT_TRUE((std::is_same<
+					 //my_tuple,
+					 //typename PopBack<std::tuple<float, double, int, double, char>>::type
+				 //>::value));
+
+	//ASSERT_TRUE((std::is_same<
+					 //std::tuple<>,
+					 //typename PopBack<std::tuple<char, float, double, int, double>, 5>::type
+				 //>::value));
+
+	// push_front
+	ASSERT_TRUE((std::is_same<
 					 my_tuple,
-					 typename PushFront<float, std::tuple<double, int, double>>::type
+					 typename PushFront<std::tuple<double, int, double>, float>::type
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<
+					 my_tuple,
+					 typename PushFront<std::tuple<float, double, int, double>>::type
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<
+					 my_tuple,
+					 typename PushFront<std::tuple<>, float, double, int, double>::type
+				 >::value));
+
+	// push_back
+	ASSERT_TRUE((std::is_same<
+					 my_tuple,
+					 typename PushBack<std::tuple<float, double>, int, double>::type
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<
+					 my_tuple,
+					 typename PushBack<std::tuple<float, double, int, double>>::type
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<
+					 my_tuple,
+					 typename PushBack<std::tuple<>, float, double, int, double>::type
 				 >::value));
 }

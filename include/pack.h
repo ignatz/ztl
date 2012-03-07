@@ -9,8 +9,7 @@
 
 namespace ZTL {
 
-	template<typename NoPack, template<typename...> class Target>
-		struct Copy {};
+	template<typename NoPack, template<typename...> class Target> struct Copy;
 
 	template<template<typename...> class Source, template<typename...> class Target, typename ... Args>
 		struct Copy<Source<Args...>, Target>
@@ -20,27 +19,66 @@ namespace ZTL {
 
 
 
-	template<typename NoPack> struct PopFront {};
+	template<typename NoPack, std::size_t N = 1> struct PopFront;
 
+	template<template<typename...> class Pack, std::size_t N, typename Arg0, typename ... Args>
+		struct PopFront<Pack<Arg0, Args...>, N>
+		{
+			typedef typename PopFront<Pack<Args...>, N-1>::type type;
+		};
+
+	// FIX: compiler specialization fails here, therefore this specialization also required
 	template<template<typename...> class Pack, typename Arg0, typename ... Args>
-		struct PopFront<Pack<Arg0, Args...>>
+		struct PopFront<Pack<Arg0, Args...>, 0>
+		{
+			typedef Pack<Arg0, Args...> type;
+		};
+
+	template<template<typename...> class Pack, typename ... Args>
+		struct PopFront<Pack<Args...>, 0>
 		{
 			typedef Pack<Args...> type;
 		};
 
 
 
-	template<typename NoPack, typename T> struct PushFront {};
+	template<typename NoPack, std::size_t N = 1> struct PopBack;
 
-	template<template<typename...> class Pack, typename T, typename ... Args>
-		struct PushFront<T, Pack<Args...>>
+	template<template<typename...> class Pack, std::size_t N, typename ArgLast, typename ... Args>
+		struct PopBack<Pack<Args..., ArgLast>, N>
 		{
-			typedef Pack<T, Args...> type;
+			typedef typename PopBack<Pack<Args...>, N-1>::type type;
+		};
+
+	template<template<typename...> class Pack, typename ... Args>
+		struct PopBack<Pack<Args...>, 0>
+		{
+			typedef Pack<Args...> type;
 		};
 
 
 
-	template <std::size_t N, typename ... Args> struct At {};
+	template<typename NoPack, typename ... ToPush> struct PushFront;
+
+	template<template<typename...> class Pack, typename ... ToPush, typename ... Args>
+		struct PushFront<Pack<Args...>, ToPush...>
+		{
+			typedef Pack<ToPush..., Args...> type;
+		};
+
+
+
+	template<typename NoPack, typename ... ToPush> struct PushBack;
+
+	template<template<typename...> class Pack, typename ... ToPush, typename ... Args>
+		struct PushBack<Pack<Args...>, ToPush...>
+		{
+			typedef Pack<Args..., ToPush...> type;
+		};
+
+
+
+	template <std::size_t N, typename ... Args> struct At;
 
 	template <std::size_t N, typename Arg0, typename ... Args>
 		struct At<N, Arg0, Args...>
@@ -57,7 +95,7 @@ namespace ZTL {
 	template <std::size_t N, template<typename...> class Pack, typename ... Args>
 		struct At<N, Pack<Args...>>
 		{
-			typedef typename At<N-1, typename PopFront<Pack<Args...>>::type>::type type;
+			typedef typename At<N-1, typename PopFront<Pack<Args...>, 1>::type>::type type;
 		};
 
 	template <template<typename...> class Pack, typename Arg0, typename ... Args>
@@ -88,6 +126,5 @@ namespace ZTL {
 				return arg0;
 			}
 		};
-
 
 } // namespace ZTL
