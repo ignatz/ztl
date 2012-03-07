@@ -35,6 +35,7 @@ def build(bld):
             "test_tree.cc",
             "test_pack.cc",
             "test_numeric.cc",
+            "test_functional.cc",
             ];
 
     bld(
