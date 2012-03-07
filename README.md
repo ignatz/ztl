@@ -1,14 +1,32 @@
 Zero Template Library
 =====================
 
-The 0TL provides hybrid template functionality on top of C++11's beautiful standard template library and boost.
-The philosophy behind 0TL is _zero-compromises_. Which means, no trade-offs concerning compiler compatibilities affecting code redundancy and readability. Right now, the code breaks even many recent compilers.
-It is recommended to either try clang3.x or g++-4.7, whereas both can not yet compile all components of 0TL.
+The 0TL Library provides hybrid template functionality on top of C++11's
+beautiful standard template library and little boost.
+
+Our experience thought us that often there is a huge difference between an
+elegant and a good solution. 0TL clearly aims for an elegant one. If you are
+looking for a good one look at boost::fusion. The main philosophy behind 0TL is
+_zero-compromises_, which means no trade-offs concerning compiler
+compatibilities affecting code redundancy or readability. In turn, this also
+means no portability guarantees. At the moment, the code breaks even the most
+recent compilers. Therefore, it is recommended to use current g++-4.7 snapshots.
 
 What does hybrid mean?
 ----------------------
-Pure template meta programming is limited to computation on types, while C++'s core language performs its computation based on instances. Making the transition from the compile-time to the runtime world is always tricky. Therefore, it might be useful to make use of other static language features like `constexpr`.
-Good examples for hybrid template containers are std::tuple and the boost::fusion containers.
+Pure template meta programming is limited to computation on types, while C++'s
+core language normally operates on instances of types. Making the transition
+from the compile time to the runtime domain is usually tricky. Fortunately,
+C++11 also provides new language features for compile time static instances,
+namely `constexpr`. This allows for flexible templated containers, well suited
+for runtime computation. A good examples of an modern hybrid template container
+is std::tuple.
+
+Features
+--------
+* array class, which can invoke non-default constructors
+* static tree structure
+* computation on variadic argument packs
 
 Licensing
 ---------
