@@ -92,6 +92,12 @@ TEST(PackTest, ArgumentPackManipulation) {
 				 >::value));
 }
 
+TEST(PackTest, Find) {
+
+	ASSERT_EQ( 2, ((find<int, my_tuple>::value)));
+	//ASSERT_EQ(-1, ((find<char, my_tuple>::value)));
+}
+
 TEST(PackTest, ForEach) {
 
 	int const N = 5;
