@@ -7,8 +7,6 @@
 
 using namespace ZTL;
 
-// TODO: check more corner cases
-
 typedef std::tuple<float, double, int, double> my_tuple;
 
 TEST(PackTest, ArgumentPackAccess) {
@@ -92,10 +90,43 @@ TEST(PackTest, ArgumentPackManipulation) {
 				 >::value));
 }
 
+TEST(PackTest, Merge) {
+	ASSERT_TRUE((std::is_same<
+					 typename merge< std::tuple<float, double>,
+						 std::tuple<int, double> >::type,
+					 my_tuple
+				 >::value));
+}
+
+TEST(PackTest, Shifting) {
+	ASSERT_TRUE((std::is_same<
+					 typename shift_left<my_tuple>::type,
+					 std::tuple<double, int, double, float>
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<
+					 typename shift_left<my_tuple, 3>::type,
+					 std::tuple<double, float, double, int>
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<typename shift_left<my_tuple, 4>::type, my_tuple>::value));
+
+	ASSERT_TRUE((std::is_same<typename shift_left<my_tuple, 0>::type, my_tuple>::value));
+
+	ASSERT_TRUE((std::is_same<
+					 typename shift_right<my_tuple, 2>::type,
+					 std::tuple<int, double, float, double>
+				 >::value));
+
+	ASSERT_TRUE((std::is_same<typename shift_right<my_tuple, 4>::type, my_tuple>::value));
+
+	ASSERT_TRUE((std::is_same<typename shift_right<my_tuple, 0>::type, my_tuple>::value));
+}
+
 TEST(PackTest, Find) {
 
 	ASSERT_EQ( 2, ((find<int, my_tuple>::value)));
-	//ASSERT_EQ(-1, ((find<char, my_tuple>::value)));
+	ASSERT_EQ(-1, ((find<char, my_tuple>::value)));
 }
 
 TEST(PackTest, ForEach) {

@@ -58,6 +58,13 @@ namespace ZTL {
 			typedef Target<Stack...> type;
 		};
 
+	template<template<typename...> class Source, template<typename...> class Target,
+			typename ... Stack>
+		struct copy_n<Source<>, Target, 0, stack<Stack...>>
+		{
+			typedef Target<Stack...> type;
+		};
+
 
 
 	template<typename NoPack, size_t N = 1> struct pop_front;
@@ -126,6 +133,16 @@ namespace ZTL {
 
 
 
+	template<typename NoPack0, typename NoPack1> struct merge;
+
+	template<template<typename...> class Pack, typename ... Args0, typename ... Args1>
+		struct merge<Pack<Args0...> , Pack<Args1...>>
+		{
+			typedef Pack<Args0..., Args1...> type;
+		};
+
+
+
 	template <size_t N, typename ... Args> struct get;
 
 	template <size_t N, typename Arg0, typename ... Args>
@@ -170,9 +187,37 @@ namespace ZTL {
 		struct arg<0>
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static Arg0 get(Arg0 arg0, Args ...) {
+			constexpr static Arg0 get(Arg0 arg0, Args&& ...) {
 				return arg0;
 			}
+		};
+
+
+
+	template<typename NoPack, size_t N = 1> struct shift_left;
+
+	template<template<typename...> class Pack, size_t N, typename ... Args>
+		struct shift_left<Pack<Args...>, N>
+		{
+			enum : size_t { value = N % sizeof...(Args) };
+			typedef typename merge<
+					typename pop_front<Pack<Args...>, value>::type,
+					typename pop_back<Pack<Args...>, sizeof...(Args)-value>::type
+				>::type type;
+		};
+
+
+
+	template<typename NoPack, size_t N = 1> struct shift_right;
+
+	template<template<typename...> class Pack, size_t N, typename ... Args>
+		struct shift_right<Pack<Args...>, N>
+		{
+			enum : size_t { value = N % sizeof...(Args) };
+			typedef typename merge<
+					typename pop_front<Pack<Args...>, sizeof...(Args)-value>::type,
+					typename pop_back<Pack<Args...>, value>::type
+				>::type type;
 		};
 
 
