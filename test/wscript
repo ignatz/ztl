@@ -23,9 +23,13 @@ def configure(cfg):
             #'-D_GLIBCXX_DEBUG',
             ]
 
-    cfg.env.INCLUDES_0TLTEST = [ '../include', ]
-
     cfg.env.LIB_0TLTEST     = [ 'gtest', 'pthread']
+
+    cfg.check_cxx(
+            msg          = "Checking for GoogleTest",
+            header_name  = 'gtest/gtest.h',
+            lib          = ['gtest', 'pthread'],
+            uselib_store = 'GTEST')
 
 
 def build(bld):
@@ -42,5 +46,5 @@ def build(bld):
         target          = 'main',
         features        = 'cxx cxxprogram',
         source          = ['main.cc',] + tests,
-        use             = ['0TLTEST', 'BOOST'],
+        use             = ['0TLTEST', 'GTEST', 'BOOST'],
     )
