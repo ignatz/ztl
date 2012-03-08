@@ -39,11 +39,11 @@ namespace ZTL {
 
 
 	template<typename NoPack, template<typename...> class Target,
-			std::size_t N, typename Stack = stack<>>
+			size_t N, typename Stack = stack<>>
 		struct copy_n;
 
 	template<template<typename...> class Source, template<typename...> class Target,
-			std::size_t N, typename Arg0, typename ... Args, typename ... Stack>
+			size_t N, typename Arg0, typename ... Args, typename ... Stack>
 		struct copy_n<Source<Arg0, Args...>, Target, N, stack<Stack...>>
 		{
 			typedef typename copy_n<
@@ -60,9 +60,9 @@ namespace ZTL {
 
 
 
-	template<typename NoPack, std::size_t N = 1> struct pop_front;
+	template<typename NoPack, size_t N = 1> struct pop_front;
 
-	template<template<typename...> class Pack, std::size_t N, typename Arg0, typename ... Args>
+	template<template<typename...> class Pack, size_t N, typename Arg0, typename ... Args>
 		struct pop_front<Pack<Arg0, Args...>, N>
 		{
 			typedef typename pop_front<Pack<Args...>, N-1>::type type;
@@ -83,10 +83,10 @@ namespace ZTL {
 
 
 
-	template<typename NoPack, std::size_t N = 1> struct pop_back;
+	template<typename NoPack, size_t N = 1> struct pop_back;
 
 	// TODO: use this as soon as compiler survives
-	//template<template<typename...> class Pack, std::size_t N, typename ArgLast, typename ... Args>
+	//template<template<typename...> class Pack, size_t N, typename ArgLast, typename ... Args>
 		//struct pop_back<Pack<Args..., ArgLast>, N>
 		//{
 			//typedef typename pop_back<Pack<Args...>, N-1>::type type;
@@ -98,7 +98,7 @@ namespace ZTL {
 			//typedef Pack<Args...> type;
 		//};
 
-	template<template<typename...> class Pack, std::size_t N, typename ... Args>
+	template<template<typename...> class Pack, size_t N, typename ... Args>
 		struct pop_back<Pack<Args...>, N>
 		{
 			typedef typename copy_n<Pack<Args...>, Pack, sizeof...(Args)-N>::type type;
@@ -126,9 +126,9 @@ namespace ZTL {
 
 
 
-	template <std::size_t N, typename ... Args> struct get;
+	template <size_t N, typename ... Args> struct get;
 
-	template <std::size_t N, typename Arg0, typename ... Args>
+	template <size_t N, typename Arg0, typename ... Args>
 		struct get<N, Arg0, Args...>
 		{
 			typedef typename get<N-1, Args...>::type type;
@@ -140,7 +140,7 @@ namespace ZTL {
 			typedef Arg0 type;
 		};
 
-	template <std::size_t N, template<typename...> class Pack, typename ... Args>
+	template <size_t N, template<typename...> class Pack, typename ... Args>
 		struct get<N, Pack<Args...>>
 		{
 			typedef typename get<N, Args...>::type type;

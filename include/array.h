@@ -8,12 +8,7 @@
 #include <type_traits>
 #include <boost/serialization/serialization.hpp>
 
-using std::size_t;
-
 namespace ZTL {
-
-	typedef size_t const idx_t;
-
 
 	template<template<typename, size_t, size_t> class ArrayType, typename T, size_t N>
 		class ArrayInterface
@@ -42,12 +37,12 @@ namespace ZTL {
 				// compiler killer - WTF
 				//constexpr ArrayInterface(T const& t) : array(t) {}
 
-				inline reference operator[] (idx_t ii) {
+				inline reference operator[] (size_t const ii) {
 					assert( ii < N && "out of range" );
 					return *(&array.value+ii);
 				}
 
-				inline const_reference operator[] (idx_t ii) const {
+				inline const_reference operator[] (size_t const ii) const {
 					assert( ii < N && "out of range" );
 					return *(&array.value+ii);
 				}

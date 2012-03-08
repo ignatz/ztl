@@ -30,11 +30,11 @@ namespace ZTL {
 			typedef Array<down_type, size> array_type;
 			array_type const down;
 
-			inline down_type const& operator[] (idx_t ii) const {
+			inline down_type const& operator[] (size_t const ii) const {
 				return down[ii];
 			}
 
-			inline down_type& operator[] (idx_t ii) {
+			inline down_type& operator[] (size_t const ii) {
 				return down[ii];
 			}
 		};
@@ -75,11 +75,11 @@ namespace ZTL {
 
 			constexpr Node() : down(this) {}
 
-			inline down_type& operator[] (idx_t ii) {
+			inline down_type& operator[] (size_t const ii) {
 				return down[ii];
 			}
 
-			inline down_type const& operator[] (idx_t ii) const {
+			inline down_type const& operator[] (size_t const ii) const {
 				return down[ii];
 			}
 		};
