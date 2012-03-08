@@ -23,9 +23,9 @@ namespace ZTL {
 			typedef Node<level-1, TermLevel, Args ...> const up_type;
 			typedef Node<level+1, TermLevel, Args ...> const down_type;
 
-			constexpr Node(up_type const * const p) : up(p), down(this) {}
+			constexpr Node(up_type const * const p) : up(*p), down(this) {}
 
-			up_type const * const up;
+			up_type const & up;
 
 			typedef Array<down_type, size> array_type;
 			array_type const down;
@@ -52,9 +52,9 @@ namespace ZTL {
 			typedef Node<level  , TermLevel, Args ...> const self_type;
 			typedef Node<level-1, TermLevel, Args ...> const up_type;
 
-			up_type const * const up;
+			up_type const & up;
 
-			constexpr Node(up_type const * const p) : up(p) {}
+			constexpr Node(up_type const * const p) : up(*p) {}
 
 		};
 
