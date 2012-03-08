@@ -4,7 +4,7 @@
 #include <sstream>
 #include <array>
 
-#include "array.h"
+#include "../include/array.h"
 
 using ZTL::Array;
 using ZTL::Enum;

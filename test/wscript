@@ -15,7 +15,7 @@ def configure(cfg):
 
     cfg.env.CXXFLAGS_0TLTEST = [
             '-std=c++0x',
-            '-g', '-O0',
+            '-g', '-O1',
             '-pedantic',
             '-Wall',
             '-Wextra',

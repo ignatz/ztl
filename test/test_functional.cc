@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "functional.h"
+#include "../include/functional.h"
 
 using ZTL::bind_mf;
 

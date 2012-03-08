@@ -11,7 +11,7 @@ namespace ZTL {
 
 	template <typename T>
 		inline std::string typestring(T t) {
-			const std::type_info& ti = typeid(t);
+			std::type_info const& ti = typeid(t);
 			return abi::__cxa_demangle(ti.name(), nullptr, nullptr, nullptr);
 		}
 

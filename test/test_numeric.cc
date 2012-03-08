@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "numeric.h"
+#include "../include/numeric.h"
 
 #include <type_traits>
 
