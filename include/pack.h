@@ -6,125 +6,184 @@
 #include "integer.h"
 
 #include <cstdlib>
+#include <functional>
 
 namespace ZTL {
 
-	template<typename NoPack, template<typename...> class Target> struct Copy;
+	template<typename ... Args> struct stack {};
+
+
+
+	template<typename ... Args>
+		struct size
+		{
+			enum : size_t { value = sizeof...(Args) };
+		};
+
+	template<template<typename...> class Pack, typename ... Args>
+		struct size<Pack<Args...>>
+		{
+			enum : size_t { value = sizeof...(Args) };
+		};
+
+
+
+	template<typename NoPack, template<typename...> class Target> struct copy;
 
 	template<template<typename...> class Source, template<typename...> class Target, typename ... Args>
-		struct Copy<Source<Args...>, Target>
+		struct copy<Source<Args...>, Target>
 		{
 			typedef Target<Args...> type;
 		};
 
 
 
-	template<typename NoPack, std::size_t N = 1> struct PopFront;
+	template<typename NoPack, template<typename...> class Target,
+			std::size_t N, typename Stack = stack<>>
+		struct copy_n;
 
-	template<template<typename...> class Pack, std::size_t N, typename Arg0, typename ... Args>
-		struct PopFront<Pack<Arg0, Args...>, N>
+	template<template<typename...> class Source, template<typename...> class Target,
+			std::size_t N, typename Arg0, typename ... Args, typename ... Stack>
+		struct copy_n<Source<Arg0, Args...>, Target, N, stack<Stack...>>
 		{
-			typedef typename PopFront<Pack<Args...>, N-1>::type type;
+			typedef typename copy_n<
+					Source<Args...>, Target, N-1, stack<Stack..., Arg0>
+				>::type type;
 		};
 
-	// FIX: compiler specialization fails here, therefore this specialization also required
+	template<template<typename...> class Source, template<typename...> class Target,
+			typename Arg0, typename ... Args, typename ... Stack>
+		struct copy_n<Source<Arg0, Args...>, Target, 0, stack<Stack...>>
+		{
+			typedef Target<Stack...> type;
+		};
+
+
+
+	template<typename NoPack, std::size_t N = 1> struct pop_front;
+
+	template<template<typename...> class Pack, std::size_t N, typename Arg0, typename ... Args>
+		struct pop_front<Pack<Arg0, Args...>, N>
+		{
+			typedef typename pop_front<Pack<Args...>, N-1>::type type;
+		};
+
 	template<template<typename...> class Pack, typename Arg0, typename ... Args>
-		struct PopFront<Pack<Arg0, Args...>, 0>
+		struct pop_front<Pack<Arg0, Args...>, 0>
 		{
 			typedef Pack<Arg0, Args...> type;
 		};
 
-	template<template<typename...> class Pack, typename ... Args>
-		struct PopFront<Pack<Args...>, 0>
+	// silent failure, when poping from empty pack. desireable?
+	template<template<typename...> class Pack>
+		struct pop_front<Pack<>, 0>
 		{
-			typedef Pack<Args...> type;
+			typedef Pack<> type;
 		};
 
 
 
-	template<typename NoPack, std::size_t N = 1> struct PopBack;
+	template<typename NoPack, std::size_t N = 1> struct pop_back;
 
-	template<template<typename...> class Pack, std::size_t N, typename ArgLast, typename ... Args>
-		struct PopBack<Pack<Args..., ArgLast>, N>
+	// TODO: use this as soon as compiler survives
+	//template<template<typename...> class Pack, std::size_t N, typename ArgLast, typename ... Args>
+		//struct pop_back<Pack<Args..., ArgLast>, N>
+		//{
+			//typedef typename pop_back<Pack<Args...>, N-1>::type type;
+		//};
+
+	//template<template<typename...> class Pack, typename ... Args>
+		//struct pop_back<Pack<Args...>, 0>
+		//{
+			//typedef Pack<Args...> type;
+		//};
+
+	template<template<typename...> class Pack, std::size_t N, typename ... Args>
+		struct pop_back<Pack<Args...>, N>
 		{
-			typedef typename PopBack<Pack<Args...>, N-1>::type type;
+			typedef typename copy_n<Pack<Args...>, Pack, sizeof...(Args)-N>::type type;
 		};
 
-	template<template<typename...> class Pack, typename ... Args>
-		struct PopBack<Pack<Args...>, 0>
-		{
-			typedef Pack<Args...> type;
-		};
 
 
-
-	template<typename NoPack, typename ... ToPush> struct PushFront;
+	template<typename NoPack, typename ... ToPush> struct push_front;
 
 	template<template<typename...> class Pack, typename ... ToPush, typename ... Args>
-		struct PushFront<Pack<Args...>, ToPush...>
+		struct push_front<Pack<Args...>, ToPush...>
 		{
 			typedef Pack<ToPush..., Args...> type;
 		};
 
 
 
-	template<typename NoPack, typename ... ToPush> struct PushBack;
+	template<typename NoPack, typename ... ToPush> struct push_back;
 
 	template<template<typename...> class Pack, typename ... ToPush, typename ... Args>
-		struct PushBack<Pack<Args...>, ToPush...>
+		struct push_back<Pack<Args...>, ToPush...>
 		{
 			typedef Pack<Args..., ToPush...> type;
 		};
 
 
 
-	template <std::size_t N, typename ... Args> struct At;
+	template <std::size_t N, typename ... Args> struct get;
 
 	template <std::size_t N, typename Arg0, typename ... Args>
-		struct At<N, Arg0, Args...>
+		struct get<N, Arg0, Args...>
 		{
-			typedef typename At<N-1, Args...>::type type;
+			typedef typename get<N-1, Args...>::type type;
 		};
 
 	template <typename Arg0, typename ... Args>
-		struct At<0, Arg0, Args...>
+		struct get<0, Arg0, Args...>
 		{
 			typedef Arg0 type;
 		};
 
 	template <std::size_t N, template<typename...> class Pack, typename ... Args>
-		struct At<N, Pack<Args...>>
+		struct get<N, Pack<Args...>>
 		{
-			typedef typename At<N-1, typename PopFront<Pack<Args...>, 1>::type>::type type;
+			typedef typename get<N, Args...>::type type;
 		};
 
-	template <template<typename...> class Pack, typename Arg0, typename ... Args>
-		struct At<0, Pack<Arg0, Args...>>
+	template <template<typename...> class Pack, typename ... Args>
+		struct get<0, Pack<Args...>>
 		{
-			typedef Arg0 type;
+			typedef typename get<0, Args...>::type type;
 		};
 
 	template<size_t N, int ... Args>
-		using At_c = At<N, int_<Args>...>;
+		using get_c = get<N, int_<Args>...>;
 
 
 
 	template<size_t N>
-		struct Arg
+		struct arg
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static auto get(Arg0&&, Args&& ... args) -> decltype(Arg<N-1>::get(args...)) {
-				return Arg<N-1>::get(std::forward<Args>(args)...);
+			constexpr static auto get(Arg0&&, Args&& ... args) -> decltype(arg<N-1>::get(args...)) {
+				return arg<N-1>::get(std::forward<Args>(args)...);
 			}
 		};
 
 	template<>
-		struct Arg<0>
+		struct arg<0>
 		{
 			template<typename Arg0, typename ... Args>
 			constexpr static Arg0 get(Arg0 arg0, Args ...) {
 				return arg0;
 			}
 		};
+
+
+
+	template<typename ReturnType, typename InputType>
+		inline void for_each(std::function<ReturnType (InputType)>) {}
+
+	template<typename ReturnType, typename InputType, typename Arg0, typename ... Args>
+		inline void for_each(std::function<ReturnType (InputType)> f, Arg0&& arg0, Args&& ... args) {
+			f(arg0);
+			for_each(f, std::forward<Args>(args)...);
+		}
 
 } // namespace ZTL

@@ -16,7 +16,7 @@ namespace ZTL {
 		{
 			enum {
 				level = Level,
-				size = At_c<level, Args ...>::type::value,
+				size = get_c<level, Args ...>::type::value,
 			};
 
 			typedef Node<level  , TermLevel, Args ...> const self_type;
@@ -64,7 +64,7 @@ namespace ZTL {
 		{
 			enum {
 				level  = 0,
-				size   = At_c<level, Args...>::type::value,
+				size   = get_c<level, Args...>::type::value,
 			};
 
 			typedef Node<level  , TermLevel, Args ...> const self_type;
