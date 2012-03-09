@@ -27,7 +27,8 @@ namespace ZTL {
 		class Void
 		{
 			public:
-				constexpr Void(Args ... args __attribute__((unused)) ) {}
+				template<typename ... Ts>
+					constexpr Void(Ts&& ...) {}
 
 			private:
 				friend class boost::serialization::access;

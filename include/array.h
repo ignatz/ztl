@@ -7,12 +7,15 @@
 #include <cassert>
 #include <array>
 #include <type_traits>
+#include <initializer_list>
 #include <boost/serialization/serialization.hpp>
 
 namespace ZTL {
 
 	template<typename NoArrayType, size_t N>
 		class ArrayInterface;
+
+
 
 	template<typename T>
 		struct is_array
@@ -32,6 +35,8 @@ namespace ZTL {
 			enum : bool { value = true };
 		};
 
+
+
 	template<template<typename, size_t, size_t> class ArrayType, typename T, size_t N>
 		class ArrayInterface<ArrayType<T, N, 0>, N>
 		{
@@ -49,6 +54,8 @@ namespace ZTL {
 				template<typename ... Args>
 					constexpr ArrayInterface(Args&& ... args) : array(std::forward<Args>(args)...) {}
 
+				constexpr ArrayInterface(std::initializer_list<type> const& il) : array(il) {}
+
 				inline reference operator[] (size_t const ii) {
 					assert( ii < N && "out of range" );
 					return *(&array.value+ii);
@@ -60,15 +67,15 @@ namespace ZTL {
 				}
 
 				// iterators
-				iterator        begin()       { return &array.value; }
-				const_iterator  begin() const { return &array.value; }
-				const_iterator cbegin() const { return &array.value; }
+				iterator                  begin() { return &array.value; }
+				constexpr const_iterator  begin() { return &array.value; }
+				constexpr const_iterator cbegin() { return begin(); }
 
-				iterator        end()       { return &array.value+N; }
-				const_iterator  end() const { return &array.value+N; }
-				const_iterator cend() const { return &array.value+N; }
+				iterator                  end()   { return &array.value+N; }
+				constexpr const_iterator  end()   { return &array.value+N; }
+				constexpr const_iterator cend()   { return end(); }
 
-				operator T* () { return &array.value; }
+				constexpr operator T* ()          { return cbegin(); }
 
 				array_type array;
 		};
@@ -106,114 +113,111 @@ namespace ZTL {
 		}
 
 
+
 	template<typename T, size_t N, size_t Idx = 0>
-		struct ArrayData
+		struct StandardArray
 		{
 			T value;
 
-			constexpr ArrayData() : value(), next() {}
+			// those have to work for any array
+			constexpr StandardArray() : value(), next() {}
+			constexpr StandardArray(std::initializer_list<T> const& l) : value(Idx >= l.size() ? T() : *(l.begin()+Idx)), next(l) {}
+
 
 			// initialize with [] containers
 			template<template <typename, size_t> class Container, typename Type>
-				constexpr ArrayData(Container<Type, N> const & con) : value(con[Idx]), next(con) {}
-
+				constexpr StandardArray(Container<Type, N> const & con) : value(con[Idx]), next(con) {}
 
 			template<typename Arg0, typename ... Args, typename = typename std::enable_if<!ZTL::is_array<typename std::decay<Arg0>::type>::value>::type>
-				constexpr ArrayData(Arg0&& arg0, Args&& ... args) :
+				constexpr StandardArray(Arg0&& arg0, Args&& ... args) :
 					value(std::forward<Arg0>(arg0), std::forward<Args>(args)...),
 					next(std::forward<Arg0>(arg0), std::forward<Args>(args)...) {}
 
-			ArrayData<T, N, Idx+1> next;
+			StandardArray<T, N, Idx+1> next;
 		};
 
 	template<typename T, size_t N>
-		struct ArrayData<T, N, N>
+		struct StandardArray<T, N, N>
 		{
-			template<typename ... Args> constexpr ArrayData(Args&& ...) {}
+			template<typename ... Args> constexpr StandardArray(Args&& ...) {}
 		};
-
 
 
 
 	template<typename T, size_t N, size_t Idx = 0>
-		struct AppendingData
+		struct RecursiveArray
 		{
 			T value;
 
-			constexpr AppendingData() : value(), next() {}
+			constexpr RecursiveArray() : value(), next() {}
+			constexpr RecursiveArray(RecursiveArray const& ar) : value(ar.value), next(ar.next) {}
+			constexpr RecursiveArray(std::initializer_list<T> const& l) :
+				value(Idx >= l.size() ? T() : *(l.begin()+Idx)), next(l) {}
 
-			// initialize with [] containers
-			template<template <typename, size_t> class Container, typename Type>
-				constexpr AppendingData(Container<Type, N> const & con) : value(con[Idx]), next(con) {}
-
-
-			// initial constructor (unpack interface)
+			// initial constructor (unpack array interface)
 			template<template<typename, size_t, size_t> class ArrayType,
 					size_t Size, size_t CurIndex, typename ... Args,
-					typename = typename std::enable_if<(Size<=N && CurIndex==0 && Size>0)>::type>
-				constexpr AppendingData(ArrayInterface<ArrayType<T, Size, CurIndex>, Size> const& ai, Args&& ... args) :
-					value(ai.array.value),
-					next(ai.array.next, std::forward<Args>(args)...) {}
-
-			template<template<typename, size_t, size_t> class ArrayType, size_t Size, size_t CurIndex,
-					typename Arg0, typename ... Args, typename = typename std::enable_if<(CurIndex==Size)>::type>
-				constexpr AppendingData(ArrayInterface<ArrayType<T, Size, CurIndex>, Size> const& ai, Arg0&& arg0, Args&& ... args) :
-					value(arg0),
-					next(ai, args...) {}
+					typename = typename std::enable_if<(Size<=N && CurIndex==0)>::type>
+				constexpr RecursiveArray(ArrayInterface<ArrayType<T, Size, CurIndex>, Size> const& ai, Args&& ... args) :
+					RecursiveArray(ai.array, std::forward<Args>(args)...) {}
 
 			template<template<typename, size_t, size_t> class ArrayType, size_t Size, typename ... Args,
-					typename = typename std::enable_if<(Size<Idx)>::type>
-				constexpr AppendingData(ArrayType<T, Size, Idx> const& ar, Args&& ... args) :
+					typename = typename std::enable_if<(Size>Idx)>::type>
+				constexpr RecursiveArray(ArrayType<T, Size, Idx> const& ar, Args&& ... args) :
 					value(ar.value), next(ar.next, std::forward<Args>(args)...) {}
 
 			template<template<typename, size_t, size_t> class ArrayType, size_t Size,
-					typename Arg0, typename ... Args, typename = typename std::enable_if<Size==Idx>::type>
-				constexpr AppendingData(ArrayType<T, Size, Idx> const& ar, Arg0&& arg0, Args&& ... args) :
-					value(arg0), next(std::forward<Args>(args)...) {}
+					typename Arg0, typename ... Args>
+				constexpr RecursiveArray(ArrayType<T, Size, Size> const& ar, Arg0&& arg0, Args&& ... args) :
+					value(arg0), next(ar, std::forward<Args>(args)...) {}
 
+			template<template<typename, size_t, size_t> class ArrayType, size_t Size>
+				constexpr RecursiveArray(ArrayType<T, Size, Size> const&) : RecursiveArray() {}
 
-			AppendingData<T, N, Idx+1> next;
+			RecursiveArray<T, N, Idx+1> next;
 		};
 
 	template<typename T, size_t N>
-		struct AppendingData<T, N, N>
+		struct RecursiveArray<T, N, N>
 		{
-			template<typename ... Args> constexpr AppendingData(Args&& ...) {}
+			template<typename ... Args> constexpr RecursiveArray(Args&& ...) {}
 		};
 
 
 
 	template<typename T, size_t N, size_t Idx = 0>
-		struct EnumData
+		struct EnumArray
 		{
 			T value;
 
-			template<typename ... Args>
-				constexpr EnumData(Args ... args) :
-					value(Idx, args ...),
-					next(args ...) {}
+			constexpr EnumArray(std::initializer_list<T> const& l) :
+				value(Idx >= l.size() ? T(Idx) : T(Idx, *(l.begin()+Idx))), next(l) {}
 
-			EnumData<T, N, Idx+1> next;
+			template<typename ... Args>
+				constexpr EnumArray(Args&& ... args) :
+					value(Idx, std::forward<Args>(args)...),
+					next(std::forward<Args>(args)...) {}
+
+			EnumArray<T, N, Idx+1> next;
 		};
 
 	template<typename T, size_t N>
-		struct EnumData<T, N, N>
+		struct EnumArray<T, N, N>
 		{
 			template<typename ... Args>
-				constexpr EnumData(Args ...) {}
+				constexpr EnumArray(Args ...) {}
 		};
 
 
 
 	template<typename T, size_t N>
-		using Array = ArrayInterface<ArrayData<T, N>, N>;
+		using Array = ArrayInterface<StandardArray<T, N>, N>;
 
 	template<typename T, size_t N>
-		using Enum = ArrayInterface<EnumData<T, N>, N>;
+		using ArrayE = ArrayInterface<EnumArray<T, N>, N>;
 
-	// TODO: stupid name
 	template<typename T, size_t N>
-		using Appending = ArrayInterface<AppendingData<T, N>, N>;
+		using ArrayA = ArrayInterface<RecursiveArray<T, N>, N>;
 
 } // ZTL
 
