@@ -6,8 +6,7 @@
 
 #include "../include/array.h"
 
-using ZTL::Array;
-using ZTL::Enum;
+using namespace ZTL;
 
 
 struct Dummy
@@ -28,7 +27,7 @@ TEST(ArrayTest, BasicCheck) {
 	}
 	ASSERT_EQ(42, a[10].value);
 
-	// const array check
+	//const array check
 	typedef Array<Dummy const, 11> array_type_b;
 	constexpr array_type_b b(42);
 	for (int ii=0; ii<11; ++ii) {
@@ -75,8 +74,8 @@ TEST(ArrayTest, Comparisons) {
 
 
 TEST(ArrayTest, Padding) {
-	Array<char, 1> no_padding;
-	ASSERT_EQ(2, sizeof(no_padding));
+	ASSERT_EQ(1+1, sizeof(Array<char, 1>));
+	ASSERT_EQ(1, sizeof(Array<char, 0>));
 }
 
 
@@ -96,26 +95,30 @@ TEST(ArrayTest, Serialization) {
 
 
 TEST(ArrayTest, Appending) {
-	Array<int, 2> copy_array(Array<int, 0>(), 2, 2);
-	Array<int, 3> copy_array2(copy_array, 3);
+	Array<int, 0> a;
+	Appending<int, 2> copy_array(a, 2, 2);
+	//Appending<int, 3> copy_array2(copy_array, 3);
 
-	for (int ii=0; ii<2; ++ii) {
-		ASSERT_EQ(2, copy_array2[ii]);
-		ASSERT_EQ(2, copy_array[ii]);
-	}
-	ASSERT_EQ(3, copy_array2[2]);
+	ASSERT_EQ(2, copy_array[0]);
+	ASSERT_EQ(2, copy_array[1]);
 
-	Array<int, 5> list(Array<int, 0>(), 0, 1, 2, 3, 4);
-	for (int ii=0; ii<5; ++ii) {
-	  ASSERT_EQ(ii, list[ii]);
-	}
+	//for (int ii=0; ii<2; ++ii) {
+		//ASSERT_EQ(2, copy_array2[ii]);
+		//ASSERT_EQ(2, copy_array[ii]);
+	//}
+	//ASSERT_EQ(3, copy_array2[2]);
+
+	//Array<int, 5> list(Array<int, 0>(), 0, 1, 2, 3, 4);
+	//for (int ii=0; ii<5; ++ii) {
+	  //ASSERT_EQ(ii, list[ii]);
+	//}
 }
 
 
 TEST(ArrayTest, Conversion) {
 	int const N = 5;
 	std::array<int, N> in0 = {{0, 1, 2, 3, 4}};
-	Array<int, N>      in1(Array<int, 0>(), 0, 1, 2, 3, 4);
+	Array<int, N>      in1(in0);
 
 	Array<Dummy, N> conv0(in0);
 	Array<Dummy, N> conv1(in1);
