@@ -128,6 +128,7 @@ namespace ZTL {
 			template<template <typename, size_t> class Container, typename Type>
 				constexpr StandardArray(Container<Type, N> const & con) : value(con[Idx]), next(con) {}
 
+			// invoke non-default constructors of T
 			template<typename Arg0, typename ... Args, typename = typename std::enable_if<!ZTL::is_array<typename std::decay<Arg0>::type>::value>::type>
 				constexpr StandardArray(Arg0&& arg0, Args&& ... args) :
 					value(std::forward<Arg0>(arg0), std::forward<Args>(args)...),

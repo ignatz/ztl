@@ -188,7 +188,6 @@ TEST(RecursiveArrayTest, Constructors) {
 	}
 }
 
-
 TEST(RecursiveArrayTest, Serialization) {
 	ArrayA<int, 42> to_serialize;
 	std::stringstream ss;
@@ -211,6 +210,28 @@ TEST(EnumArrayTest, BasicCheck) {
 	ArrayE<DummyTwoArgs const, 10> r(42);
 	ArrayE<DummyTwoArgs, 10> const s(42);
 	ArrayE<DummyTwoArgs const, 10> const t(42);
+}
+
+TEST(EnumArrayTest, Constructors) {
+	// default
+	ArrayE<Dummy const, 100> const dc = {};
+	for (int ii=0; ii<100; ++ii) {
+		ASSERT_EQ(ii, dc[ii].value);
+	}
+
+	// copy
+	ArrayA<Dummy const, 100> cc(dc);
+	for (int ii=0; ii<100; ++ii) {
+		ASSERT_EQ(ii, cc[ii].value);
+	}
+}
+
+TEST(EnumArrayTest, InitializerList) {
+	int const N = 5;
+	ArrayE<int, N> il1 = {};
+	for (int ii=0; ii<N; ++ii) {
+		ASSERT_EQ(ii, il1[ii]);
+	}
 }
 
 TEST(EnumArrayTest, Serialization) {
