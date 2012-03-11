@@ -238,6 +238,24 @@ namespace ZTL {
 
 
 
+	template<template<typename> class F, typename NoPack> struct Apply;
+
+	template<template<typename> class F, template<typename...> class Pack, typename ... Args>
+		struct Apply<F, Pack<Args...>>
+		{
+			typedef Pack<typename F<Args>::type ...> type;
+		};
+
+	template<template<int> class F, typename NoPack> struct Apply_c;
+
+	template<template<int> class F, template<int ...> class Pack, int ... Args>
+		struct Apply_c<F, Pack<Args...>>
+		{
+			typedef Pack<F<Args>::value ...> type;
+		};
+
+
+
 	template<typename ReturnType, typename InputType>
 		inline void for_each(std::function<ReturnType (InputType)>) {}
 

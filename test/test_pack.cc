@@ -129,6 +129,17 @@ TEST(PackTest, Find) {
 	ASSERT_EQ(-1, ((find<char, my_tuple>::value)));
 }
 
+
+template<typename Anytype>
+struct apply_t
+{
+	typedef bool type;
+};
+
+TEST(PackTest, Apply) {
+	ASSERT_TRUE((std::is_same<std::tuple<bool,bool,bool,bool>, typename Apply<apply_t, my_tuple>::type>::value));
+}
+
 TEST(PackTest, ForEach) {
 
 	int const N = 5;
