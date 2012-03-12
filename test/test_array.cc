@@ -175,6 +175,8 @@ TEST(RecursiveArrayTest, InitializerList) {
 
 TEST(RecursiveArrayTest, Constructors) {
 	// default
+	ArrayA<int, 0> zero;
+
 	ArrayA<DummyWithDefault, 100> dc;
 	for (int ii=0; ii<100; ++ii) {
 		ASSERT_EQ(-1, dc[ii].value);
@@ -185,6 +187,22 @@ TEST(RecursiveArrayTest, Constructors) {
 	ArrayA<double, 10> cct(ccs);
 	for (int ii=0; ii<10; ++ii) {
 		ASSERT_EQ(ii, cct[ii]);
+	}
+}
+
+TEST(RecursiveArrayTest, Appending) {
+	ArrayA<int, 0> a;
+	ArrayA<int, 0> a1(a);
+	ArrayA<int, 1> b(a, 0);
+	ArrayA<int, 2> c0(a, 0, 1);
+	ArrayA<int, 2> c1(b, 1);
+
+	ArrayA<int, 6> g(b, 1, 2, 3, 4, 5);
+
+	int cnt = 0;
+	for (auto it = g.begin(); it < g.end(); ++it) {
+		ASSERT_EQ(*it, cnt);
+		++cnt;
 	}
 }
 
@@ -200,21 +218,24 @@ TEST(RecursiveArrayTest, Serialization) {
 
 // Testing the EnumArray
 TEST(EnumArrayTest, BasicCheck) {
-	ArrayE<int, 10> a;
+	Enum<int, 10> a;
 	for (int ii=0; ii<10; ++ii) {
 		ASSERT_EQ(ii, a[ii]);
 		ASSERT_EQ(ii, a[ii]);
 	}
 
-	ArrayE<DummyTwoArgs, 10> q(42);
-	ArrayE<DummyTwoArgs const, 10> r(42);
-	ArrayE<DummyTwoArgs, 10> const s(42);
-	ArrayE<DummyTwoArgs const, 10> const t(42);
+	Enum<DummyTwoArgs, 10> q(42);
+	Enum<DummyTwoArgs const, 10> r(42);
+	Enum<DummyTwoArgs, 10> const s(42);
+	Enum<DummyTwoArgs const, 10> const t(42);
 }
 
 TEST(EnumArrayTest, Constructors) {
+	Enum<int const, 0> const a;
+	Enum<int const, 100> const b;
+
 	// default
-	ArrayE<Dummy const, 100> const dc = {};
+	Enum<Dummy const, 100> const dc = {};
 	for (int ii=0; ii<100; ++ii) {
 		ASSERT_EQ(ii, dc[ii].value);
 	}
@@ -228,14 +249,14 @@ TEST(EnumArrayTest, Constructors) {
 
 TEST(EnumArrayTest, InitializerList) {
 	int const N = 5;
-	ArrayE<int, N> il1 = {};
+	Enum<int, N> il1 = {};
 	for (int ii=0; ii<N; ++ii) {
 		ASSERT_EQ(ii, il1[ii]);
 	}
 }
 
 TEST(EnumArrayTest, Serialization) {
-	ArrayE<int, 42> to_serialize;
+	Enum<int, 42> to_serialize;
 	std::stringstream ss;
 	boost::archive::text_oarchive oa(ss);
 	oa << to_serialize;

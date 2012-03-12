@@ -121,7 +121,8 @@ namespace ZTL {
 
 			// those have to work for any array
 			constexpr StandardArray() : value(), next() {}
-			constexpr StandardArray(std::initializer_list<T> const& l) : value(Idx >= l.size() ? T() : *(l.begin()+Idx)), next(l) {}
+			constexpr StandardArray(std::initializer_list<T> const& l) :
+				value(Idx >= l.size() ? T() : *(l.begin()+Idx)), next(l) {}
 
 
 			// initialize with [] containers
@@ -129,7 +130,8 @@ namespace ZTL {
 				constexpr StandardArray(Container<Type, N> const & con) : value(con[Idx]), next(con) {}
 
 			// invoke non-default constructors of T
-			template<typename Arg0, typename ... Args, typename = typename std::enable_if<!ZTL::is_array<typename std::decay<Arg0>::type>::value>::type>
+			template<typename Arg0, typename ... Args, typename = typename std::enable_if<
+				!ZTL::is_array<typename std::decay<Arg0>::type>::value>::type>
 				constexpr StandardArray(Arg0&& arg0, Args&& ... args) :
 					value(std::forward<Arg0>(arg0), std::forward<Args>(args)...),
 					next(std::forward<Arg0>(arg0), std::forward<Args>(args)...) {}
@@ -191,8 +193,9 @@ namespace ZTL {
 		{
 			T value;
 
+			constexpr EnumArray() : value(Idx), next() {}
 			constexpr EnumArray(std::initializer_list<T> const& l) :
-				value(Idx >= l.size() ? T(Idx) : T(Idx, *(l.begin()+Idx))), next(l) {}
+				value(Idx >= l.size() ? EnumArray() : T(Idx, *(l.begin()+Idx))), next(l) {}
 
 			template<typename ... Args>
 				constexpr EnumArray(Args&& ... args) :
@@ -206,7 +209,7 @@ namespace ZTL {
 		struct EnumArray<T, N, N>
 		{
 			template<typename ... Args>
-				constexpr EnumArray(Args ...) {}
+				constexpr EnumArray(Args&& ...) {}
 		};
 
 
@@ -215,7 +218,7 @@ namespace ZTL {
 		using Array = ArrayInterface<StandardArray<T, N>, N>;
 
 	template<typename T, size_t N>
-		using ArrayE = ArrayInterface<EnumArray<T, N>, N>;
+		using Enum = ArrayInterface<EnumArray<T, N>, N>;
 
 	template<typename T, size_t N>
 		using ArrayA = ArrayInterface<RecursiveArray<T, N>, N>;
@@ -231,13 +234,17 @@ namespace boost {
 			}
 
 		// TODO: unsafe, possible collisions with non-ArrayType types with same signature -> use macro action
-		template<typename Archiver, template<typename, size_t, size_t> class Class, typename T, size_t N, size_t Idx>
-			typename std::enable_if<(N>Idx), void>::type serialize(Archiver & ar, Class<T, N, Idx> & s, unsigned int const) {
+		template<typename Archiver, template<typename, size_t, size_t> class Class,
+				typename T, size_t N, size_t Idx>
+			typename std::enable_if<(N>Idx), void>::type
+			serialize(Archiver & ar, Class<T, N, Idx> & s, unsigned int const) {
 				ar & s.value;
 				ar & s.next;
 			}
 
-		template<typename Archiver, template<typename, size_t, size_t> class Class, typename T, size_t N, size_t Idx>
-			typename std::enable_if<(N==Idx), void>::type serialize(Archiver &, Class<T, N, Idx> &, unsigned int const) {}
+		template<typename Archiver, template<typename, size_t, size_t> class Class,
+				typename T, size_t N, size_t Idx>
+			typename std::enable_if<(N==Idx), void>::type
+			serialize(Archiver &, Class<T, N, Idx> &, unsigned int const) {}
 	} // namespace serialization
 } // namespace boost
