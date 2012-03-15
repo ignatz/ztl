@@ -178,7 +178,7 @@ namespace ZTL {
 		struct arg
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static auto get(Arg0&&, Args&& ... args) -> decltype(arg<N-1>::get(args...)) {
+			constexpr static auto get(Arg0&&, Args&& ... args) noexcept -> decltype(arg<N-1>::get(args...)) {
 				return arg<N-1>::get(std::forward<Args>(args)...);
 			}
 		};
@@ -187,7 +187,7 @@ namespace ZTL {
 		struct arg<0>
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static Arg0 get(Arg0 arg0, Args&& ...) {
+			constexpr static Arg0 get(Arg0 arg0, Args&& ...) noexcept {
 				return arg0;
 			}
 		};

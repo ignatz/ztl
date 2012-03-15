@@ -8,6 +8,7 @@
 
 using namespace ZTL;
 
+// TODO: test for exception guarantees
 
 struct Dummy
 {

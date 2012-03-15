@@ -52,7 +52,8 @@ namespace ZTL {
 				enum : size_t { size = N };
 
 				template<typename ... Args>
-					constexpr ArrayInterface(Args&& ... args) : array(std::forward<Args>(args)...) {}
+					constexpr ArrayInterface(Args&& ... args) noexcept(std::is_nothrow_constructible<T>::value) :
+						array(std::forward<Args>(args)...) {}
 
 				constexpr ArrayInterface(std::initializer_list<type> const& il) : array(il) {}
 
