@@ -23,4 +23,10 @@ namespace ZTL {
 	template<int N>
 		using int_ = integral<int, N>;
 
+	template<size_t N>
+		using size_t_ = integral<size_t, N>;
+
+	template<bool N>
+		using bool_ = integral<bool, N>;
+
 } // ZTL
