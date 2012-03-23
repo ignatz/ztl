@@ -9,7 +9,7 @@
 
 namespace ZTL {
 
-	template<typename Structur, size_t Level=0, size_t TermLevel = Structur::size-1, typename enable = void>
+	template<typename Structur, size_t Level=0, size_t TermLevel = Structur::size, typename enable = void>
 		struct SimpleTree;
 
 
@@ -35,9 +35,9 @@ namespace ZTL {
 
 			template<typename ... Args>
 				constexpr SimpleTree(Args&& ... args) :
-					value(arg<level>::get(args...)), child(std::forward<Args>(args)...) {}
+					value(arg<level-1>::get(args...)), child(std::forward<Args>(args)...) {}
 
-			constexpr child_type operator[] (unsigned ii) {
+			constexpr child_type const& operator[] (unsigned ii) {
 				return child[ii];
 			}
 		};
@@ -63,7 +63,7 @@ namespace ZTL {
 			template<typename ... Args>
 				constexpr SimpleTree(Args&& ... args) : child(std::forward<Args>(args)...) {}
 
-			constexpr child_type operator[] (unsigned ii) {
+			constexpr child_type const& operator[] (unsigned ii) {
 				return child[ii];
 			}
 		};
@@ -77,6 +77,7 @@ namespace ZTL {
 			enum : size_t {
 				level  = TermLevel,
 			};
+
 			typedef typename get<level-1,Ts...>::type value_type;
 
 			value_type value;
@@ -84,9 +85,7 @@ namespace ZTL {
 			constexpr SimpleTree() : value() {}
 
 			template<typename ... Args>
-				constexpr SimpleTree(Args&& ... args) : value(arg<level>::get(args...)) {}
-
-
+				constexpr SimpleTree(Args&& ... args) : value(arg<level-1>::get(args...)) {}
 		};
 
 
@@ -112,10 +111,10 @@ namespace boost {
 
 		// normal node
 		template<typename Archiver, typename ... Ts, size_t ... Sizes, size_t Level, size_t TermLevel,
-				typename enable = typename std::enable_if<Level != TermLevel && Level != 0>::type>
+				typename enable = typename std::enable_if<(Level != TermLevel) && Level != 0>::type>
 			void serialize(Archiver & ar, ZTL::SimpleTree<
 						   ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>,
-						   Level, TermLevel, void> & s , unsigned int const) {
+						   Level, TermLevel, void> & s, unsigned int const) {
 				ar & s.value;
 				ar & s.child;
 			}
@@ -124,7 +123,7 @@ namespace boost {
 		template<typename Archiver, typename ... Ts, size_t ... Sizes, size_t TermLevel>
 			void serialize(Archiver & ar, ZTL::SimpleTree<
 						   ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>,
-						   TermLevel, TermLevel, void> & s , unsigned int const) {
+						   TermLevel, TermLevel, void> & s, unsigned int const) {
 				ar & s.value;
 			}
 
@@ -132,7 +131,7 @@ namespace boost {
 		template<typename Archiver, typename ... Ts, size_t ... Sizes, size_t TermLevel>
 			void serialize(Archiver & ar, ZTL::SimpleTree<
 						   ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>,
-						   0, TermLevel, void> & s , unsigned int const) {
+						   0, TermLevel, void> & s, unsigned int const) {
 				ar & s.child;
 			}
 	} // namespace serialization
