@@ -3,33 +3,54 @@
 #include "../include/numeric.h"
 
 #include <type_traits>
-
-using namespace ZTL;
+#include <cmath>
 
 TEST(NumericTest, BasicOperations) {
-	ASSERT_EQ(  3, (add_c<1,2>::type::value));
-	ASSERT_EQ( -1, (sub<int_<1>,int_<2>>::type::value));
-	ASSERT_EQ( -1, (sub_c<1, 2>::type::value));
-	ASSERT_EQ(120, (mult_c<1,2,3,4,5>::type::value));
-	ASSERT_EQ(  0, (div_c<1,2>::type::value));
-	ASSERT_EQ(  1, (mod_c<1,2>::type::value));
-	ASSERT_EQ(  2, (inc_c<1>::type::value));
-	ASSERT_EQ(  0, (dec<int_<1>>::type::value));
+	ASSERT_EQ(  3, (ZTL::add<1,2>::value));
+	ASSERT_EQ( -1, (ZTL::sub<1,2>::value));
+	ASSERT_EQ( -1, (ZTL::sub<1, 2>::value));
+	ASSERT_EQ(120, (ZTL::mult<1,2,3,4,5>::value));
+	ASSERT_EQ(  0, (ZTL::div<1,2>::value));
+	ASSERT_EQ(  1, (ZTL::mod<1,2>::value));
+	ASSERT_EQ(  2, (ZTL::inc<1>::value));
+	ASSERT_EQ(  0, (ZTL::dec<1>::value));
 
-	ASSERT_EQ(  0, (min_c<1,2,3,0,3,4>::type::value));
-	ASSERT_EQ(  4, (max_c<1,2,3,0,3,4>::type::value));
+	ASSERT_EQ(  0, (ZTL::min<1,2,3,0,3,4>::value));
+	ASSERT_EQ(  4, (ZTL::max<1,2,3,0,3,4>::value));
+}
+
+template<typename ... Ints>
+struct TestUnpackC
+{
+	enum : int { value = ZTL::add<ZTL::unpack_c<Ints>::value...>::value };
+};
+
+TEST(NumericTest, Unpack) {
+	using ZTL::int_;
+	ASSERT_EQ(  15, (TestUnpackC<int_<1>, int_<4>, int_<10>>::value));
+}
+
+TEST(NumericTest, Pow) {
+	ASSERT_EQ(pow(2,0), (ZTL::pow<2, 0>::value));
+	ASSERT_EQ(pow(2,1), (ZTL::pow<2, 1>::value));
+	ASSERT_EQ(pow(2,8), (ZTL::pow<2, 8>::value));
+
+	ASSERT_EQ(pow(5,5), (ZTL::pow<5, 5>::value));
+	ASSERT_EQ(pow(5,5), (ZTL::pow<5, 5>::value));
 }
 
 TEST(NumericTest, Factorial) {
-	ASSERT_EQ((mult_c<1,2,3,4,5>::type::value), (factorial_c<5>::type::value));
-	ASSERT_EQ((mult_c<1,2,3,4,5,6,7,8>::type::value), (factorial_c<8>::type::value));
-	ASSERT_EQ(1, (factorial<int_<0>>::type::value));
+	using namespace ZTL;
+	ASSERT_EQ((mult<1,2,3,4,5>::value), (factorial<5>::value));
+	ASSERT_EQ((mult<1,2,3,4,5,6,7,8>::value), (factorial<8>::value));
+	ASSERT_EQ(1, (factorial<0>::value));
 }
 
 TEST(NumericTest, Fibonacci) {
-	ASSERT_EQ(0 , fibonacci_c<0>::type::value);
-	ASSERT_EQ(1 , fibonacci_c<1>::type::value);
-	ASSERT_EQ(8 , fibonacci<int_<6>>::type::value);
-	ASSERT_EQ(13, fibonacci<int_<7>>::type::value);
-	ASSERT_EQ(21, fibonacci<int_<8>>::type::value);
+	using namespace ZTL;
+	ASSERT_EQ(0 , fibonacci<0>::value);
+	ASSERT_EQ(1 , fibonacci<1>::value);
+	ASSERT_EQ(8 , fibonacci<6>::value);
+	ASSERT_EQ(13, fibonacci<7>::value);
+	ASSERT_EQ(21, fibonacci<8>::value);
 }

@@ -4,149 +4,146 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include "integer.h"
+#include "cstdint"
 
 namespace ZTL {
 
-	template<typename ... N>
+	template<typename T>
+		struct unpack_c
+		{
+			enum : int { value = T::value };
+		};
+
+
+
+	template<int N>
+		struct positive
+		{
+			enum : int { value = N };
+		};
+
+	template<int N>
+		using negative = positive<-N>;
+
+
+
+	template<int ... N>
 		struct add {
-			typedef int_<0> type;
+			enum : int { value = 0 };
 		};
 
-	template<typename N, typename ... M>
+	template<int N, int ... M>
 		struct add<N, M...> {
-			typedef int_<N::value + add<M...>::type::value> type;
+			enum : int { value = N + add<M...>::value };
 		};
 
-	template<int ... N>
-		using add_c = add<int_<N>...>;
 
-	template<typename N>
-		using inc = add<N, int_<1>>;
 
 	template<int N>
-		using inc_c = add_c<N, 1>;
+		using inc = add<N, 1>;
+
+	template<int N>
+		using dec = add<N,-1>;
 
 
 
-
-	template<typename ... N>
+	template<int N, int ... M>
 		struct sub {
-			typedef int_<0> type;
+			enum : int { value = N - add<M...>::value };
 		};
 
-	template<typename N, typename ... M>
-		struct sub<N, M...> {
-			typedef int_<N::value - sub<M...>::type::value> type;
-		};
+
 
 	template<int ... N>
-		using sub_c = sub<int_<N>...>;
-
-	template<typename N>
-		using dec = sub<N, int_<1>>;
-
-	template<int N>
-		using dec_c = sub_c<N, 1>;
-
-
-
-
-	template<typename ... N>
 		struct mult {
-			typedef int_<1> type;
+			enum : int { value = 1 };
 		};
 
-	template<typename N, typename ... M>
+	template<int N, int ... M>
 		struct mult<N, M...> {
-			typedef int_<N::value * mult<M...>::type::value> type;
+			enum : int { value = N * mult<M...>::value };
 		};
 
-	template<int ... N>
-		using mult_c = mult<int_<N>...>;
 
 
-
-	template<typename ... N>
+	template<int N, int ... M>
 		struct div {
-			typedef int_<1> type;
+			enum : int { value = N / mult<M...>::value };
 		};
 
-	template<typename N, typename ... M>
-		struct div<N, M...> {
-			typedef int_<N::value / mult<M...>::type::value> type;
-		};
-
-	template<int ... N>
-		using div_c = div<int_<N>...>;
 
 
-
-	template<typename N, typename M>
+	template<int N, int M>
 		struct mod {
-			typedef int_<N::value % M::value> type;
+			enum : int { value = N % M };
+		};
+
+
+
+	template<int N, int M>
+		struct less {
+			enum : bool { value = N < M };
 		};
 
 	template<int N, int M>
-		using mod_c = mod<int_<N>, int_<M>>;
-
-
-
-	template<typename N, typename ... M>
-		struct max {
-			typedef int_<(N::value > max<M...>::type::value) ? N::value : max<M...>::type::value> type;
+		struct more {
+			enum : bool { value = N > M };
 		};
 
-	template<typename N>
-		struct max<N> {
-			typedef N type;
+
+
+	template<template<int, int> class T, int N, int ... M>
+		struct extremum {
+			enum : int { value = T<N, extremum<T, M...>::value>::value ? N : extremum<T, M...>::value };
 		};
 
-	template<int ... N>
-		using max_c = max<int_<N>...>;
-
-	template<typename N, typename ... M>
-		struct min {
-			typedef int_<(N::value < min<M...>::type::value) ? N::value : min<M...>::type::value> type;
+	template<template<int, int> class T, int N>
+		struct extremum<T, N> {
+			enum : int { value = N };
 		};
 
-	template<typename N>
-		struct min<N> {
-			typedef N type;
+	template<int N, int ... M>
+		using max = extremum<more, N, M...>;
+
+	template<int N, int ... M>
+		using min = extremum<less, N, M...>;
+
+
+
+	template<intmax_t Base, intmax_t Exp>
+		struct pow {
+			enum : intmax_t { value = Base * pow<Base, Exp-1>::value };
 		};
 
-	template<int ... N>
-		using min_c = min<int_<N>...>;
+	template<intmax_t Base>
+		struct pow<Base, 0> {
+			enum : intmax_t { value = 1 };
+		};
 
 
 
-	template<typename N>
+	template<uintmax_t N>
 		struct factorial
 		{
-			typedef typename mult<N, typename factorial<typename dec<N>::type>::type>::type type;
+			enum : uintmax_t { value = N * factorial<N-1>::value };
 		};
 
 	template<>
-		struct factorial<int_<0>>
+		struct factorial<0>
 		{
-			typedef int_<1> type;
+			enum : uintmax_t { value = 1 };
 		};
 
-	template<int N>
-		using factorial_c = factorial<int_<N>>;
 
 
-
-	template<int N>
-		struct fibonacci_c
+	template<uintmax_t N>
+		struct fibonacci
 		{
-			typedef int_<fibonacci_c<N-1>::type::value + fibonacci_c<N-2>::type::value> type;
+			enum : uintmax_t { value = fibonacci<N-1>::value + fibonacci<N-2>::value };
 		};
 
-	template<> struct fibonacci_c<0> { typedef int_<0> type; };
+	template<> struct fibonacci<1> { enum : uintmax_t { value = 1 }; };
 
-	template<> struct fibonacci_c<1> { typedef int_<1> type; };
-
-	template<typename N>
-		using fibonacci = fibonacci_c<N::value>;
+	template<> struct fibonacci<0> { enum : uintmax_t { value = 0 }; };
 
 } // ZTL
