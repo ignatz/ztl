@@ -3,15 +3,17 @@
 // Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "integer.h"
-#include "cstdint"
+#include <cstdint>
 
 namespace ZTL {
 
-	template<typename T>
-		struct unpack_c
+	template<typename T, typename C>
+		struct integral_unpack;
+
+	template<typename T, template<typename, T> class C, T N>
+		struct integral_unpack<T, C<T,N>>
 		{
-			enum : int { value = T::value };
+			enum : T { value = N };
 		};
 
 
@@ -80,33 +82,61 @@ namespace ZTL {
 
 
 
-	template<int N, int M>
-		struct less {
+	template<typename T, T N, T M>
+		struct eq_t {
+			enum : bool { value = N == M };
+		};
+
+	template<typename T, T N, T M>
+		struct un_eq_t {
+			enum : bool { value = N != M };
+		};
+
+	template<typename T, T N, T M>
+		struct less_t {
 			enum : bool { value = N < M };
 		};
 
-	template<int N, int M>
-		struct more {
+	template<typename T, T N, T M>
+		struct less_eq_t {
+			enum : bool { value = N <= M };
+		};
+
+	template<typename T, T N, T M>
+		struct more_t {
 			enum : bool { value = N > M };
 		};
 
-
-
-	template<template<int, int> class T, int N, int ... M>
-		struct extremum {
-			enum : int { value = T<N, extremum<T, M...>::value>::value ? N : extremum<T, M...>::value };
+	template<typename T, T N, T M>
+		struct more_eq_t {
+			enum : bool { value = N >= M };
 		};
 
-	template<template<int, int> class T, int N>
-		struct extremum<T, N> {
-			enum : int { value = N };
+	template<int N, int M> using eq      = eq_t<int, N, M>;
+	template<int N, int M> using un_eq   = un_eq_t<int, N, M>;
+	template<int N, int M> using less    = less_t<int, N, M>;
+	template<int N, int M> using less_eq = less_eq_t<int, N, M>;
+	template<int N, int M> using more    = more_t<int, N, M>;
+	template<int N, int M> using more_eq = more_eq_t<int, N, M>;
+
+
+
+	template<typename T, template<typename, T, T> class C, T N, T ... M>
+		struct extremum_t {
+			enum : T { value = C<T, N, extremum_t<T, C, M...>::value>::value ? \
+						   N : extremum_t<T, C, M...>::value };
+		};
+
+	template<typename T, template<typename, T, T> class C, T N>
+		struct extremum_t<T, C, N> {
+			enum : T { value = N };
 		};
 
 	template<int N, int ... M>
-		using max = extremum<more, N, M...>;
+		using max = extremum_t<int, more_t, N, M...>;
 
 	template<int N, int ... M>
-		using min = extremum<less, N, M...>;
+		using min = extremum_t<int, less_t, N, M...>;
 
 
 

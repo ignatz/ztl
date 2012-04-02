@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../include/numeric.h"
+#include "../include/integral.h"
 
 #include <type_traits>
 #include <cmath>
@@ -22,7 +23,7 @@ TEST(NumericTest, BasicOperations) {
 template<typename ... Ints>
 struct TestUnpackC
 {
-	enum : int { value = ZTL::add<ZTL::unpack_c<Ints>::value...>::value };
+	enum : int { value = ZTL::add<ZTL::integral_unpack<int, Ints>::value...>::value };
 };
 
 TEST(NumericTest, Unpack) {
@@ -53,4 +54,22 @@ TEST(NumericTest, Fibonacci) {
 	ASSERT_EQ(8 , fibonacci<6>::value);
 	ASSERT_EQ(13, fibonacci<7>::value);
 	ASSERT_EQ(21, fibonacci<8>::value);
+}
+
+
+TEST(IntegralTest, Comparison) {
+	using ZTL::int_;
+	ASSERT_TRUE(int_<0>() < int_<1>());
+	ASSERT_TRUE(int_<1>() > int_<0>());
+	ASSERT_TRUE(int_<0>() == int_<0>());
+	ASSERT_TRUE(int_<1>() != int_<0>());
+	ASSERT_TRUE(int_<0>() <= int_<0>());
+	ASSERT_TRUE(int_<0>() >= int_<0>());
+
+	ASSERT_FALSE(int_<0>() > int_<1>());
+	ASSERT_FALSE(int_<1>() < int_<0>());
+	ASSERT_FALSE(int_<0>() != int_<0>());
+	ASSERT_FALSE(int_<1>() == int_<0>());
+	ASSERT_FALSE(int_<1>() <= int_<0>());
+	ASSERT_FALSE(int_<0>() >= int_<1>());
 }
