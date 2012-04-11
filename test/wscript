@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import sys, os
 
-os.environ['CXX'] = 'g++-4.7'
+def check_version_cc(cfg):
+    if int(cfg.env.CC_VERSION[1]) < 7 or \
+            cfg.env.CXX_NAME != 'gcc':
+        cfg.fatal('ZTL requires compiler: >= gcc-4.7')
 
 def options(opt):
     opt.load('g++')
@@ -11,7 +14,11 @@ def configure(cfg):
     cfg.load('g++')
     cfg.load('boost')
 
-    cfg.check_boost(lib='serialization system thread', uselib_store='BOOST')
+    check_version_cc(cfg)
+
+    cfg.check_boost(
+            lib='serialization system thread',
+            uselib_store='BOOST')
 
     cfg.env.CXXFLAGS_0TLTEST = [
             '-std=c++0x',
