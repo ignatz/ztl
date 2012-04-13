@@ -10,7 +10,8 @@
 
 namespace ZTL {
 
-	template<typename ... Args> struct stack {};
+	template<typename ... Args>     struct stack {};
+	template<typename T, T ... Seq> struct sequence {};
 
 
 
@@ -178,7 +179,8 @@ namespace ZTL {
 		struct arg
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static auto get(Arg0&&, Args&& ... args) noexcept -> decltype(arg<N-1>::get(std::forward<Args>(args)...)) {
+			constexpr static auto get(Arg0&&, Args&& ... args) noexcept ->
+						decltype(arg<N-1>::get(std::forward<Args>(args)...)) {
 				return arg<N-1>::get(std::forward<Args>(args)...);
 			}
 		};
@@ -190,6 +192,44 @@ namespace ZTL {
 			constexpr static Arg0&& get(Arg0&& arg0, Args&& ...) noexcept {
 				return std::forward<Arg0>(arg0);
 			}
+		};
+
+
+
+	template<typename T, T From, T To, template<typename,T...> class SeqType = sequence,
+		typename Seq = SeqType<T>, typename = void>
+		struct make_sequence;
+
+	template<typename T, T From, T To, template<typename,T...> class SeqType, T ... S>
+		struct make_sequence<T, From, To, SeqType, SeqType<T, S...>, typename std::enable_if<From!=To>::type>
+		{
+			typedef typename make_sequence<T, From+1, To, SeqType, SeqType<T, S..., From>>::type type;
+		};
+
+	template<typename T, int To, template<typename, T...> class SeqType, T ... S>
+		struct make_sequence<T, To, To, SeqType, SeqType<T, S...>, void>
+		{
+			typedef SeqType<T, S...> type;
+		};
+
+
+
+	template<template<typename...> class Pack, typename NoPack>
+		struct promote
+		{
+			typedef Pack<NoPack> type;
+
+			static inline type get(NoPack&& nt) {
+				return type(std::forward<NoPack>(nt));
+			}
+		};
+
+	template<template<typename...> class Pack, typename ... Type>
+		struct promote<Pack, Pack<Type...>>
+		{
+			typedef Pack<Type...> type;
+
+			static inline type get(type&& t) { return t; }
 		};
 
 

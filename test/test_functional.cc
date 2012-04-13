@@ -2,6 +2,7 @@
 
 #include "../include/functional.h"
 
+
 using ZTL::bind_mf;
 
 struct A
