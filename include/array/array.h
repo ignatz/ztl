@@ -71,7 +71,7 @@ template<template<typename, size_t, size_t> class ArrayType, typename T, size_t 
 			constexpr operator T* () const { return cbegin(); }
 
 			// stl algorithm
-			constexpr size_type size() const { return N; }
+			static constexpr size_type size() { return N; }
 
 			void fill(value_type const& u) { std::fill_n(begin(), size(), u);}
 
