@@ -1,7 +1,5 @@
 #pragma once
 
-#include "array.h"
-
 // missing free functions for cbegin() and cend()
 template<typename T>
 	inline auto cbegin(T& t) -> decltype(t.cbegin()) {
