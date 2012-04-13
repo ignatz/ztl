@@ -3,6 +3,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <sstream>
 #include <array>
+#include <algorithm>
 
 #include "../include/array.h"
 
@@ -28,6 +29,12 @@ struct DummyTwoArgs
 	int i, j;
 	constexpr DummyTwoArgs(int i, int j) : i(i), j(j) {}
 };
+
+
+// check for constexpr (compile check)
+Array<int, 10> static_array;
+ArrayA<int, 10> static_arraya;
+Enum<int, 10> static_enum;
 
 // Testing the StandardArray
 TEST(StandardArrayTest, BasicCheck) {
@@ -262,4 +269,35 @@ TEST(EnumArrayTest, Serialization) {
 	boost::archive::text_oarchive oa(ss);
 	oa << to_serialize;
 	ASSERT_TRUE(ss.str().size());
+}
+
+
+TEST(GeneralArrayTest, Access) {
+	// C-style arrays
+	int a[10];
+	std::for_each(cbegin(a),  cend(a),  [](int) {});
+	std::for_each(rbegin(a),  rend(a),  [](int) {});
+	std::for_each(crbegin(a), crend(a), [](int) {});
+
+	// std::array<T,N>
+	std::array<int, 10> ar;
+	std::for_each(cbegin(ar),  cend(ar),  [](int) {});
+	std::for_each(rbegin(ar),  rend(ar),  [](int) {});
+	std::for_each(crbegin(ar), crend(ar), [](int) {});
+
+	// ZTL::arrays
+	Array<int, 10> zar(42);
+	std::for_each(cbegin(zar),  cend(zar),  [](int i) { ASSERT_EQ(42, i); });
+	std::for_each(rbegin(zar),  rend(zar),  [](int i) { ASSERT_EQ(42, i); });
+	std::for_each(crbegin(zar), crend(zar), [](int i) { ASSERT_EQ(42, i); });
+
+	Array<int, 10> const zarc(42);
+	std::for_each(cbegin(zarc), cend(zarc), [](int i) { ASSERT_EQ(42, i); });
+
+	Enum<int, 10> ze;
+	std::for_each(rbegin(ze), rend(ze), [](int i) {
+				  static size_t cnt = 9;
+				  ASSERT_EQ(cnt, i);
+				  --cnt;
+			  });
 }
