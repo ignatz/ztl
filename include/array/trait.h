@@ -5,8 +5,7 @@
 namespace ZTL {
 
 // forward decl
-template<typename NoArrayType, size_t N>
-	class ArrayInterface;
+template<typename NoArrayType, size_t N> class ArrayInterface;
 
 
 

@@ -249,7 +249,7 @@ TEST(EnumArrayTest, Constructors) {
 	}
 
 	// copy
-	ArrayA<Dummy const, 100> cc(dc);
+	Enum<Dummy const, 100> cc(dc);
 	for (int ii=0; ii<100; ++ii) {
 		ASSERT_EQ(ii, cc[ii].value);
 	}
@@ -271,6 +271,13 @@ TEST(EnumArrayTest, Serialization) {
 	ASSERT_TRUE(ss.str().size());
 }
 
+
+TEST(GeneralArrayTest, Misc) {
+	ASSERT_TRUE((is_array_impl<typename Array<int, 10>::array_type>::value));
+	ASSERT_TRUE((is_array_impl<StandardArray<int, 10, 9>>::value));
+	ASSERT_TRUE((is_array_impl<RecursiveArray<int, 10, 10>>::value));
+	ASSERT_FALSE((is_array_impl<int>::value));
+}
 
 TEST(GeneralArrayTest, Access) {
 	// C-style arrays

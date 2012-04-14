@@ -12,6 +12,7 @@
 #include <boost/serialization/serialization.hpp>
 
 #include "trait.h"
+#include "../pack.h"
 
 namespace ZTL {
 
@@ -141,6 +142,8 @@ template<typename T, size_t N, size_t Idx = 0>
 				next(std::forward<Arg0>(arg0), std::forward<Args>(args)...) {}
 
 		StandardArray<T, N, Idx+1> next;
+
+		static_assert(N>Idx, "use interface not implementation");
 	};
 
 template<typename T, size_t N>
@@ -183,6 +186,8 @@ template<typename T, size_t N, size_t Idx = 0>
 			constexpr RecursiveArray(ArrayType<T, Size, Size> const&) : RecursiveArray() {}
 
 		RecursiveArray<T, N, Idx+1> next;
+
+		static_assert(N>Idx, "use interface not implementation");
 	};
 
 template<typename T, size_t N>
@@ -208,6 +213,8 @@ template<typename T, size_t N, size_t Idx = 0>
 				next(std::forward<Args>(args)...) {}
 
 		EnumArray<T, N, Idx+1> next;
+
+		static_assert(N>Idx, "use interface not implementation");
 	};
 
 template<typename T, size_t N>
@@ -228,6 +235,24 @@ template<typename T, size_t N>
 template<typename T, size_t N>
 	using ArrayA = ArrayInterface<RecursiveArray<T, N>, N>;
 
+template<typename T>
+	struct is_array_impl
+	{
+		enum : bool { value = false };
+	};
+
+template<template<typename, size_t, size_t> class Class,
+		typename T, size_t N, size_t Idx>
+	struct is_array_impl<Class<T,N,Idx>>
+	{
+		enum : bool { value = ZTL::find<Class<T, N, Idx>,
+						ZTL::stack<
+							ZTL::StandardArray<T,N,Idx>,
+							ZTL::RecursiveArray<T,N,Idx>,
+							ZTL::EnumArray<T,N,Idx>
+						>>::value != -1 };
+	};
+
 } // ZTL
 
 
@@ -240,18 +265,20 @@ namespace boost {
 				ar & s.array;
 			}
 
-		// TODO: unsafe, possible collisions with non-ArrayType types with same signature -> use macro action
-		template<typename Archiver, template<typename, size_t, size_t> class Class,
-				typename T, size_t N, size_t Idx>
-			typename std::enable_if<(N>Idx), void>::type
+		template<typename Archiver, template<typename, size_t, size_t> class Class, typename T,
+				size_t N, size_t Idx, typename = typename std::enable_if<
+				ZTL::is_array_impl<Class<T, N, Idx>>::value>::type>
+			typename std::enable_if<(Idx<N), void>::type
 			serialize(Archiver & ar, Class<T, N, Idx> & s, unsigned int const) {
 				ar & s.value;
 				ar & s.next;
 			}
 
-		template<typename Archiver, template<typename, size_t, size_t> class Class,
-				typename T, size_t N, size_t Idx>
-			typename std::enable_if<(N==Idx), void>::type
+		template<typename Archiver, template<typename, size_t, size_t> class Class, typename T,
+				size_t N, size_t Idx, typename = typename std::enable_if<
+				ZTL::is_array_impl<Class<T, N, Idx>>::value>::type>
+			typename std::enable_if<Idx==N, void>::type
 			serialize(Archiver &, Class<T, N, Idx> &, unsigned int const) {}
+
 	} // namespace serialization
 } // namespace boost
