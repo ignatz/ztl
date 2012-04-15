@@ -4,6 +4,7 @@
 #include <sstream>
 #include <array>
 #include <algorithm>
+#include <vector>
 
 #include "../include/array.h"
 
@@ -81,6 +82,33 @@ TEST(StandardArrayTest, Constructors) {
 	for (int ii=0; ii<100; ++ii) {
 		ASSERT_EQ(b[ii].value, c[ii].value);
 	}
+
+	// constructor on complex types
+	// with lvalue ref
+	std::vector<int> vec(50, 0);
+	int cnt = 0;
+	for(auto& v : vec) {
+		v = cnt++;
+	}
+	Array<std::vector<int>, 10> d(vec);
+	for (auto& v : d) {
+		cnt = 0;
+		for (size_t ii=0; ii<50; ++ii) {
+			ASSERT_EQ(cnt++, v[ii]);
+		}
+	}
+	// with rvalue ref
+	Array<std::vector<int>, 10> e(std::vector<int>(50, 0));
+	for (auto& v : e) {
+		for (size_t ii=0; ii<50; ++ii) {
+			ASSERT_EQ(0, v[ii]);
+		}
+	}
+
+	int const val = 42;
+	Array<int const, 5> f(val);
+	for (auto i : f)
+		ASSERT_EQ(42, i);
 }
 
 

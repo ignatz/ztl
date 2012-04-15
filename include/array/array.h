@@ -39,7 +39,7 @@ template<template<typename, size_t, size_t> class ArrayType, typename T, size_t 
 						noexcept(std::is_nothrow_constructible<T>::value) :
 					array(std::forward<Args>(args)...) {}
 
-			constexpr ArrayInterface(std::initializer_list<value_type> const& il) :
+			constexpr ArrayInterface(std::initializer_list<value_type> const& il) noexcept :
 				array(il) {}
 
 			inline reference operator[] (size_t const ii) {
@@ -138,7 +138,7 @@ template<typename T, size_t N, size_t Idx = 0>
 		template<typename Arg0, typename ... Args, typename = typename std::enable_if<
 			!ZTL::is_array<typename std::decay<Arg0>::type>::value>::type>
 			constexpr StandardArray(Arg0&& arg0, Args&& ... args) :
-				value(std::forward<Arg0>(arg0), std::forward<Args>(args)...),
+				value(static_cast<Arg0 const&>(arg0), static_cast<Args const&>(args)...),
 				next(std::forward<Arg0>(arg0), std::forward<Args>(args)...) {}
 
 		StandardArray<T, N, Idx+1> next;
@@ -172,16 +172,19 @@ template<typename T, size_t N, size_t Idx = 0>
 					ArrayInterface<ArrayType<T, Size, CurIndex>, Size> const& ai, Args&& ... args) :
 				RecursiveArray(ai.array, std::forward<Args>(args)...) {}
 
+		// initialize from array members as long as possible
 		template<template<typename, size_t, size_t> class ArrayType, size_t Size, typename ... Args,
 				typename = typename std::enable_if<(Size>Idx)>::type>
 			constexpr RecursiveArray(ArrayType<T, Size, Idx> const& ar, Args&& ... args) :
 				value(ar.value), next(ar.next, std::forward<Args>(args)...) {}
 
+		// continue with further supplied arguments
 		template<template<typename, size_t, size_t> class ArrayType, size_t Size,
 				typename Arg0, typename ... Args>
 			constexpr RecursiveArray(ArrayType<T, Size, Size> const& ar, Arg0&& arg0, Args&& ... args) :
 				value(arg0), next(ar, std::forward<Args>(args)...) {}
 
+		// out of initializers, call default constructor for the remaining
 		template<template<typename, size_t, size_t> class ArrayType, size_t Size>
 			constexpr RecursiveArray(ArrayType<T, Size, Size> const&) : RecursiveArray() {}
 
@@ -209,7 +212,7 @@ template<typename T, size_t N, size_t Idx = 0>
 
 		template<typename ... Args>
 			constexpr EnumArray(Args&& ... args) :
-				value(Idx, std::forward<Args>(args)...),
+				value(Idx, static_cast<Args const&>(args)...),
 				next(std::forward<Args>(args)...) {}
 
 		EnumArray<T, N, Idx+1> next;
