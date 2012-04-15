@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <sstream>
 #include <array>
 #include <algorithm>
 #include <vector>
 
 #include "../include/array.h"
+#include "../include/array/range_access.h"
 
 using namespace ZTL;
 
@@ -128,7 +130,8 @@ TEST(StandardArrayTest, Comparisons) {
 
 
 TEST(StandardArrayTest, Padding) {
-	ASSERT_EQ(1+1, sizeof(Array<char, 1>));
+	ASSERT_EQ(10, sizeof(Array<char, 10>));
+	ASSERT_EQ(1, sizeof(Array<char, 1>));
 	ASSERT_EQ(1, sizeof(Array<char, 0>));
 }
 
@@ -139,12 +142,18 @@ TEST(StandardArrayTest, ZeroSizeArray) {
 
 
 TEST(StandardArrayTest, Serialization) {
-	Array<int, 42> to_serialize;
+	Array<int, 42> to_serialize = {0,1,2,3,4,5,6,7};
 	std::stringstream ss;
 	boost::archive::text_oarchive oa(ss);
 	oa << to_serialize;
-
 	ASSERT_TRUE(ss.str().size());
+
+	Array<int, 42> target;
+	boost::archive::text_iarchive ia(ss);
+	ia >> target;
+	for (size_t ii=0; ii<to_serialize.size(); ++ii) {
+		ASSERT_EQ(to_serialize[ii], target[ii]);
+	}
 }
 
 
@@ -153,21 +162,6 @@ TEST(StandardArrayTest, InitializerList) {
 	Array<int, N>      il1 = {0, 1, 2, 3, 4};
 	for (int ii=0; ii<N; ++ii) {
 	  ASSERT_EQ(ii, il1[ii]);
-	}
-}
-
-
-TEST(StandardArrayTest, Conversion) {
-	int const N = 5;
-	std::array<int, N> in0 = {{0, 1, 2, 3, 4}};
-	Array<int, N>      in1(in0);
-
-	Array<Dummy, N> conv0(in0);
-	Array<Dummy, N> conv1(in1);
-
-	for (int ii=0; ii<N; ++ii) {
-	  ASSERT_EQ(ii, conv0[ii].value);
-	  ASSERT_EQ(ii, conv1[ii].value);
 	}
 }
 
@@ -205,6 +199,21 @@ TEST(RecursiveArrayTest, InitializerList) {
 	ArrayA<int, N> il1 = {0, 1, 2, 3, 4};
 	for (int ii=0; ii<N; ++ii) {
 		ASSERT_EQ(ii, il1[ii]);
+	}
+}
+
+
+TEST(RecursiveArrayTest, Conversion) {
+	int const N = 5;
+	std::array<int, N> in0 = {{0, 1, 2, 3, 4}};
+	ArrayA<int, N>     in1(in0);
+
+	ArrayA<Dummy, N> conv0(in0);
+	ArrayA<Dummy, N> conv1(in1);
+
+	for (int ii=0; ii<N; ++ii) {
+	  ASSERT_EQ(ii, conv0[ii].value);
+	  ASSERT_EQ(ii, conv1[ii].value);
 	}
 }
 
