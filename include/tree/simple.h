@@ -35,7 +35,7 @@ namespace ZTL {
 
 			template<typename ... Args>
 				constexpr SimpleTree(Args&& ... args) :
-					value(arg<level-1>::get(args...)), child(std::forward<Args>(args)...) {}
+					value(get<level-1>::arg(args...)), child(std::forward<Args>(args)...) {}
 
 			constexpr child_type const& operator[] (unsigned ii) {
 				return child[ii];
@@ -85,7 +85,7 @@ namespace ZTL {
 			constexpr SimpleTree() : value() {}
 
 			template<typename ... Args>
-				constexpr SimpleTree(Args&& ... args) : value(arg<level-1>::get(args...)) {}
+				constexpr SimpleTree(Args&& ... args) : value(get<level-1>::arg(std::forward<Args>(args)...)) {}
 		};
 
 

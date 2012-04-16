@@ -27,6 +27,12 @@ namespace ZTL {
 			enum : size_t { value = sizeof...(Args) };
 		};
 
+	template<typename T, template<typename, T...> class Sequence, T ... Args>
+		struct size<Sequence<T, Args...>>
+		{
+			enum : size_t { value = sizeof...(Args) };
+		};
+
 
 
 	template<typename NoPack, template<typename...> class Target> struct copy;
@@ -170,29 +176,27 @@ namespace ZTL {
 			typedef typename get<0, Args...>::type type;
 		};
 
-	template<size_t N, int ... Args>
-		using get_c = get<N, int_<Args>...>;
-
-
-
-	template<size_t N>
-		struct arg
+	template <size_t N>
+		struct get<N>
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static auto get(Arg0&&, Args&& ... args) noexcept ->
-						decltype(arg<N-1>::get(std::forward<Args>(args)...)) {
-				return arg<N-1>::get(std::forward<Args>(args)...);
-			}
+				constexpr static auto arg(Arg0&&, Args&& ... args) noexcept ->
+				decltype(get<N-1>::arg(std::forward<Args>(args)...)) {
+					return get<N-1>::arg(std::forward<Args>(args)...);
+				}
 		};
 
 	template<>
-		struct arg<0>
+		struct get<0>
 		{
 			template<typename Arg0, typename ... Args>
-			constexpr static Arg0&& get(Arg0&& arg0, Args&& ...) noexcept {
-				return std::forward<Arg0>(arg0);
-			}
+				constexpr static Arg0&& arg(Arg0&& arg0, Args&& ...) noexcept {
+					return std::forward<Arg0>(arg0);
+				}
 		};
+
+	template<size_t N, int ... Args>
+		using get_c = get<N, int_<Args>...>;
 
 
 
@@ -201,9 +205,17 @@ namespace ZTL {
 		struct make_sequence;
 
 	template<typename T, T From, T To, template<typename,T...> class SeqType, T ... S>
-		struct make_sequence<T, From, To, SeqType, SeqType<T, S...>, typename std::enable_if<From!=To>::type>
+		struct make_sequence<T, From, To, SeqType, SeqType<T, S...>, typename std::enable_if<(From<To)>::type>
 		{
-			typedef typename make_sequence<T, From+1, To, SeqType, SeqType<T, S..., From>>::type type;
+			typedef typename make_sequence<
+				T, From+1, To, SeqType, SeqType<T, S..., From>>::type type;
+		};
+
+	template<typename T, T From, T To, template<typename,T...> class SeqType, T ... S>
+		struct make_sequence<T, From, To, SeqType, SeqType<T, S...>, typename std::enable_if<(From>To)>::type>
+		{
+			typedef typename make_sequence<
+				T, From+1, To, SeqType, SeqType<T, S..., From>>::type type;
 		};
 
 	template<typename T, int To, template<typename, T...> class SeqType, T ... S>
@@ -278,20 +290,22 @@ namespace ZTL {
 
 
 
-	template<template<typename> class F, typename NoPack> struct Apply;
+	template<template<int, typename> class F, typename NoPack,
+		typename Seq = typename make_sequence<int, 0, size<NoPack>::value>::type> struct Apply;
 
-	template<template<typename> class F, template<typename...> class Pack, typename ... Args>
-		struct Apply<F, Pack<Args...>>
+	template<template<int, typename> class F, template<typename...> class Pack, typename ... Args, int ... Enum>
+		struct Apply<F, Pack<Args...>, sequence<int, Enum...>>
 		{
-			typedef Pack<typename F<Args>::type ...> type;
+			typedef Pack<typename F<Enum, Args>::type ...> type;
 		};
 
-	template<template<int> class F, typename NoPack> struct Apply_c;
+	template<template<int, int> class F, typename T, typename NoSequence,
+		typename Seq = typename make_sequence<T, 0, size<NoSequence>::value>::type> struct Apply_c;
 
-	template<template<int> class F, template<int ...> class Pack, int ... Args>
-		struct Apply_c<F, Pack<Args...>>
+	template<template<int, int> class F, typename T, template<typename, T...> class Sequence, T ... Args, T ... Seq>
+		struct Apply_c<F, T, Sequence<T, Args...>, sequence<T, Seq...>>
 		{
-			typedef Pack<F<Args>::value ...> type;
+			typedef Sequence<T, F<Seq, Args>::value ...> type;
 		};
 
 

@@ -18,8 +18,8 @@ TEST(PackTest, ArgumentPackAccess) {
 
 	ASSERT_TRUE((std::is_same<double, typename get<1, int, double, int>::type>::value));
 
-	ASSERT_EQ(4, arg<0>::get(4,5.3));
-	ASSERT_EQ(5.3, arg<1>::get(4,5.3));
+	ASSERT_EQ(4, get<0>::arg(4,5.3));
+	ASSERT_EQ(5.3, get<1>::arg(4,5.3));
 
 	ASSERT_EQ(4, (size<my_tuple>::value));
 }
@@ -130,14 +130,28 @@ TEST(PackTest, Find) {
 }
 
 
-template<typename Anytype>
+template<int N, typename Anytype>
 struct apply_t
 {
-	typedef bool type;
+	typedef typename std::conditional<(N==1), float, bool>::type type;
+};
+
+template<int N, int Val>
+struct apply_c_t
+{
+	enum : int { value = 2*Val + N };
 };
 
 TEST(PackTest, Apply) {
-	ASSERT_TRUE((std::is_same<std::tuple<bool,bool,bool,bool>, typename Apply<apply_t, my_tuple>::type>::value));
+	ASSERT_TRUE((std::is_same<
+			std::tuple<bool,float,bool,bool>,
+			typename Apply<apply_t, my_tuple>::type
+		>::value));
+
+	ASSERT_TRUE((std::is_same<
+			sequence<int, 0, 2*1+1, 2*2+2, 2*3+3, 2*4+4>,
+			typename Apply_c<apply_c_t, int, sequence<int,0,1,2,3,4>>::type
+			>::value));
 }
 
 TEST(PackTest, ForEach) {
