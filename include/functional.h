@@ -8,12 +8,12 @@
 
 namespace ZTL {
 
-	template <typename Object, typename ReturnType, typename... Args>
-		inline std::function<ReturnType(Args...)> bind_mf(ReturnType(Object::*mem_ptr)(Args ...), Object& obj)
-		{
-			return [&,mem_ptr](Args&& ... args) -> ReturnType {
-				return (obj.*mem_ptr)(std::forward<Args>(args)...);
-			};
-		}
+template <typename Object, typename ReturnType, typename... Args>
+inline std::function<ReturnType(Args...)> bind_mf(ReturnType(Object::*mem_ptr)(Args ...), Object& obj)
+{
+	return [&,mem_ptr](Args&& ... args) -> ReturnType {
+		return (obj.*mem_ptr)(std::forward<Args>(args)...);
+	};
+}
 
 } // namespace ZTL

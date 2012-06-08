@@ -6,25 +6,24 @@
 
 namespace ZTL {
 
+template<typename T, size_t Size>
+struct Extend {};
 
-	template<typename T, size_t Size>
-		struct Extend {};
+template<typename ... Extends>
+struct TreeStructure;
 
-	template<typename ... Extends>
-		struct TreeStructure;
-
-	template<typename ... Ts, size_t ... Sizes>
-		struct TreeStructure<Extend<Ts, Sizes>...> {
-			enum : size_t { size = sizeof...(Ts) };
-		};
-
+template<typename ... Ts, size_t ... Sizes>
+struct TreeStructure<Extend<Ts, Sizes>...> {
+	enum : size_t { size = sizeof...(Ts) };
+};
 
 
-	// traits
-	template<typename T>
-		struct is_leaf {};
 
-	template<typename T>
-		struct is_root {};
+// traits
+template<typename T>
+struct is_leaf {};
+
+template<typename T>
+struct is_root {};
 
 } // namespace ZTL
