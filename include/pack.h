@@ -47,8 +47,8 @@ template<template<typename...> class Source, template<typename...> class Target,
 struct copy_n<Source<Arg0, Args...>, Target, N, stack<Stack...>>
 {
 	typedef typename copy_n<
-		Source<Args...>, Target, N-1, stack<Stack..., Arg0>
-	>::type type;
+			Source<Args...>, Target, N-1, stack<Stack..., Arg0>
+		>::type type;
 };
 
 template<template<typename...> class Source, template<typename...> class Target,

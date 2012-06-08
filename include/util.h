@@ -16,14 +16,6 @@ inline void unused(T t)
 
 
 
-template<typename T>
-struct Trait
-{
-	typedef T type;
-};
-
-
-
 template<typename ... Args>
 class Void
 {
