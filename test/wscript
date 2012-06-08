@@ -7,10 +7,12 @@ def check_version_cc(cfg):
         cfg.fatal('ZTL requires compiler: >= gcc-4.7')
 
 def options(opt):
+    opt.recurse('gtest')
     opt.load('g++')
     opt.load('boost')
 
 def configure(cfg):
+    cfg.recurse('gtest')
     cfg.load('g++')
     cfg.load('boost')
 
@@ -31,28 +33,14 @@ def configure(cfg):
             #'-D_GLIBCXX_DEBUG',
             ]
 
-    cfg.env.LIB_0TLTEST     = [ 'gtest', 'pthread']
-
-    cfg.check_cxx(
-            msg          = "Checking for GoogleTest",
-            header_name  = 'gtest/gtest.h',
-            lib          = ['gtest', 'pthread'],
-            uselib_store = 'GTEST')
-
+    cfg.env.LIB_0TLTEST       = ['pthread']
 
 def build(bld):
-
-    tests = [
-            "test_array.cc",
-            "test_tree.cc",
-            "test_pack.cc",
-            "test_numeric.cc",
-            "test_functional.cc",
-            ];
+    bld.recurse('gtest')
 
     bld(
         target          = 'main',
         features        = 'cxx cxxprogram',
-        source          = ['main.cc',] + tests,
-        use             = ['0TLTEST', 'GTEST', 'BOOST'],
+        source          = bld.path.get_src().ant_glob('*.cc'),
+        use             = ['0TLTEST', 'BOOST', 'gtest'],
     )

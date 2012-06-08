@@ -165,6 +165,24 @@ TEST(StandardArrayTest, InitializerList) {
 	}
 }
 
+TEST(StandardArrayTest, MemoryLayout) {
+	size_t const N = 100;
+	Array<int, N> a;
+	for (size_t ii = 0; ii<N; ++ii)
+		a[ii] = ii;
+
+	for (size_t ii = 0; ii<N; ++ii)
+		ASSERT_EQ(a[ii], (reinterpret_cast<std::array<int, N>&>(a)[ii]));
+
+
+
+	Array<bool, N> b;
+	for (size_t ii = 0; ii<N; ++ii)
+		b[ii] = ii;
+
+	for (size_t ii = 0; ii<N; ++ii)
+		ASSERT_EQ(b[ii], (reinterpret_cast<std::array<bool, N>&>(b)[ii]));
+}
 
 
 // Testing the RecursiveArray

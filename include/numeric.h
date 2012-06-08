@@ -4,6 +4,7 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <cstdint>
+#include <type_traits>
 
 namespace ZTL {
 
@@ -162,6 +163,26 @@ namespace ZTL {
 		struct factorial<0>
 		{
 			enum : uintmax_t { value = 1 };
+		};
+
+
+
+	template<uintmax_t N, size_t II = sizeof(uintmax_t)*8>
+		struct log2
+		{
+			static_assert(N!=0, "log2<0> not defined");
+			enum : uintmax_t { value =
+				   std::conditional<
+					   (N >> (II-1)) & 0x1,
+					   std::integral_constant<uintmax_t, II-1>,
+					   log2<N, II-1>
+					>::type::value };
+		};
+
+	template<uintmax_t N>
+		struct log2<N, 1>
+		{
+			enum : uintmax_t { value = 0 };
 		};
 
 

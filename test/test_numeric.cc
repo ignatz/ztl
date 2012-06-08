@@ -47,6 +47,16 @@ TEST(NumericTest, Factorial) {
 	ASSERT_EQ(1, (factorial<0>::value));
 }
 
+TEST(NumericTest, Log2) {
+	ASSERT_EQ( 0 , (ZTL::log2<1>::value));
+	ASSERT_EQ( 1 , (ZTL::log2<2>::value));
+	ASSERT_EQ( 2 , (ZTL::log2<4>::value));
+	ASSERT_EQ( 6 , (ZTL::log2<64>::value));
+	ASSERT_EQ(10 , (ZTL::log2<1024>::value));
+	ASSERT_EQ(10 , (ZTL::log2<1025>::value));
+	ASSERT_EQ(10 , (ZTL::log2<2047>::value));
+}
+
 TEST(NumericTest, Fibonacci) {
 	using namespace ZTL;
 	ASSERT_EQ(0 , fibonacci<0>::value);
