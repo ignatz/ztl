@@ -328,10 +328,26 @@ TEST(EnumArrayTest, Serialization) {
 
 
 TEST(GeneralArrayTest, Misc) {
+	// check whether given type is a low level ZTL array implementation
 	ASSERT_TRUE((is_array_impl<typename Array<int, 10>::array_type>::value));
+	ASSERT_TRUE((is_array_impl<StandardArray<int, 10>>::value));
+	ASSERT_TRUE((is_array_impl<EnumArray<int, 10>>::value));
 	ASSERT_TRUE((is_array_impl<StandardArray<int, 10, 9>>::value));
 	ASSERT_TRUE((is_array_impl<RecursiveArray<int, 10, 10>>::value));
 	ASSERT_FALSE((is_array_impl<int>::value));
+	ASSERT_FALSE((is_array_impl<std::array<int, 10>>::value));
+
+	// check whether given type is an array type
+	ASSERT_FALSE((is_array<typename Array<int, 10>::array_type>::value));
+	ASSERT_FALSE((is_array<StandardArray<int, 10, 9>>::value));
+	ASSERT_FALSE((is_array<RecursiveArray<int, 10>>::value));
+	ASSERT_FALSE((is_array<EnumArray<int, 10>>::value));
+
+	ASSERT_TRUE((is_array<std::array<int, 10>>::value));
+	ASSERT_TRUE((is_array<Array<int, 10>>::value));
+	ASSERT_TRUE((is_array<ArrayA<int, 10>>::value));
+	ASSERT_TRUE((is_array<Enum<int, 10>>::value));
+	ASSERT_FALSE((is_array<int>::value));
 }
 
 TEST(GeneralArrayTest, Access) {

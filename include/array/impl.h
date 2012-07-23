@@ -10,6 +10,7 @@
 #include <bits/stl_iterator.h>
 
 #include "base.h"
+#include "trait.h"
 
 namespace ZTL {
 
@@ -196,7 +197,7 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type>
 
 template<typename T, size_t N, size_t Idx>
 struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type> :
-public BaseArray<T, N, Idx>
+	public BaseArray<T, N, Idx>
 {
 	constexpr RecursiveArray() : BaseArray<T, N, Idx>() {}
 	constexpr RecursiveArray(std::initializer_list<T> const& l) :
@@ -221,7 +222,7 @@ public BaseArray<T, N, Idx>
 
 template<typename T, size_t N, size_t Idx>
 struct EnumArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> :
-public BaseArray<T, N, Idx>
+	public BaseArray<T, N, Idx>
 {
 	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx), next() {}
 
@@ -234,7 +235,7 @@ public BaseArray<T, N, Idx>
 
 template<typename T, size_t N, size_t Idx>
 struct EnumArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type> :
-public BaseArray<T, N, Idx>
+	public BaseArray<T, N, Idx>
 {
 	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx) {}
 

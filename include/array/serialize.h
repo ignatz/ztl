@@ -4,6 +4,7 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include "impl.h"
+#include "trait.h"
 
 #include <boost/serialization/serialization.hpp>
 
