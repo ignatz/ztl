@@ -4,7 +4,6 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <type_traits>
-#include <array>
 
 namespace ZTL {
 

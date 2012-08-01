@@ -3,16 +3,19 @@
 // Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <cstdlib>
+#include <cstdint>
 #include <cassert>
 #include <type_traits>
 #include <initializer_list>
-#include <bits/stl_iterator.h>
+#include <iterator>
 
 #include "base.h"
 #include "trait.h"
+#include "enable_if.h"
 
 namespace ZTL {
+
+using std::size_t;
 
 template<template<typename, size_t, size_t, typename> class ArrayType, typename T, size_t N>
 class ArrayInterface<ArrayType<T, N, 0, void>, N>
@@ -36,7 +39,7 @@ public:
 	constexpr ArrayInterface(self_type const& c) : array(c.array) {}
 
 	template<typename Arg0, typename ... Args, typename = typename
-		std::enable_if<!std::is_same<self_type, typename std::decay<Arg0>::type>::value>::type>
+		enable_if<!std::is_same<self_type, typename std::decay<Arg0>::type>::value>::type>
 	constexpr ArrayInterface(Arg0&& arg0, Args&& ... args) \
 			noexcept(std::is_nothrow_constructible<T>::value) :
 		array(std::forward<Arg0>(arg0), std::forward<Args>(args)...) {}
@@ -79,7 +82,7 @@ public:
 	void fill(value_type const& u) { std::fill_n(begin(), size(), u);}
 
 	template<typename Type,
-		typename = typename std::enable_if<ZTL::is_array<Type>::value>::type>
+		typename = typename enable_if<ZTL::is_array<Type>::value>::type>
 	void swap(Type& other) {
 		std::swap_ranges(begin(), end(), begin(other));
 	}
@@ -139,7 +142,7 @@ bool operator>= (const ArrayInterface<ArrayType<T, N, 0, Args ...>, N>& x,
 
 
 template<typename T, size_t N, size_t Idx>
-struct StandardArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> :
+struct StandardArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr StandardArray() : BaseArray<T, N, Idx>() {}
@@ -153,7 +156,7 @@ struct StandardArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> 
 };
 
 template<typename T, size_t N, size_t Idx>
-struct StandardArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type> :
+struct StandardArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr StandardArray() : BaseArray<T, N, Idx>() {}
@@ -167,7 +170,7 @@ struct StandardArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type>
 
 
 template<typename T, size_t N, size_t Idx>
-struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> :
+struct RecursiveArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr RecursiveArray() : BaseArray<T, N, Idx>(), next() {}
@@ -176,7 +179,7 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type>
 
 
 	template<template<typename, size_t> class Container, typename Q, size_t Size, typename ... Args,
-		typename = typename std::enable_if<(Idx<Size)>::type>
+		typename = typename enable_if<(Idx<Size)>::type>
 	constexpr RecursiveArray(Container<Q, Size> const& con, Args&& ... args) :
 		BaseArray<T, N, Idx>(*(con.begin()+Idx)), next(con, std::forward<Args>(args)...)
 	{
@@ -184,11 +187,11 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type>
 	}
 
 	template<template<typename, size_t> class Container, typename Q, size_t Size,
-		typename = typename std::enable_if<(Idx>=Size)>::type>
+		typename = typename enable_if<(Idx>=Size)>::type>
 	constexpr RecursiveArray(Container<Q, Size> const&) : RecursiveArray() {}
 
 	template<template<typename, size_t> class Container, typename Q, size_t Size, typename Arg0,
-		typename ... Args, typename = typename std::enable_if<(Idx>=Size)>::type>
+		typename ... Args, typename = typename enable_if<(Idx>=Size)>::type>
 	constexpr RecursiveArray(Container<Q, Size> const& con, Arg0&& arg0, Args&& ... args) :
 		BaseArray<T, N, Idx>(std::forward<Arg0>(arg0)), next(con, std::forward<Args>(args)...) {}
 
@@ -196,7 +199,7 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type>
 };
 
 template<typename T, size_t N, size_t Idx>
-struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type> :
+struct RecursiveArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr RecursiveArray() : BaseArray<T, N, Idx>() {}
@@ -205,12 +208,12 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type
 
 
 	template<template<typename, size_t> class Container, typename Type, size_t Size, typename ... Args,
-		typename = typename std::enable_if<(Idx<Size)>::type>
+		typename = typename enable_if<(Idx<Size)>::type>
 	constexpr RecursiveArray(Container<Type, Size> const& con) :
 		BaseArray<T, N, Idx>(*(con.begin()+Idx)) {}
 
 	template<template<typename, size_t> class Container, typename Type, size_t Size,
-		typename ... Args, typename = typename std::enable_if<(Idx>=Size)>::type>
+		typename ... Args, typename = typename enable_if<(Idx>=Size)>::type>
 	constexpr RecursiveArray(Container<Type, Size> const&, Args&& ... args) :
 		BaseArray<T, N, Idx>(std::forward<Args>(args)...)
 	{
@@ -221,7 +224,7 @@ struct RecursiveArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type
 
 
 template<typename T, size_t N, size_t Idx>
-struct EnumArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> :
+struct EnumArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx), next() {}
@@ -234,7 +237,7 @@ struct EnumArray<T, N, Idx, typename std::enable_if<(Idx+1<N), void>::type> :
 };
 
 template<typename T, size_t N, size_t Idx>
-struct EnumArray<T, N, Idx, typename std::enable_if<(Idx+1>=N), void>::type> :
+struct EnumArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
 	public BaseArray<T, N, Idx>
 {
 	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx) {}

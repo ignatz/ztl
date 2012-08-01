@@ -8,6 +8,8 @@
 
 namespace ZTL {
 
+using std::size_t;
+
 template<typename T, typename C>
 struct integral_unpack;
 
@@ -152,47 +154,47 @@ struct pow<Base, 0> {
 
 
 
-template<uintmax_t N>
+template<size_t N>
 struct factorial
 {
-	enum : uintmax_t { value = N * factorial<N-1>::value };
+	enum : size_t { value = N * factorial<N-1>::value };
 };
 
 template<>
 struct factorial<0>
 {
-	enum : uintmax_t { value = 1 };
+	enum : size_t { value = 1 };
 };
 
 
 
-template<uintmax_t N, size_t II = sizeof(uintmax_t)*8>
+template<size_t N, size_t II = sizeof(size_t)*8>
 struct log2
 {
 	static_assert(N!=0, "log2<0> not defined");
-	enum : uintmax_t { value = std::conditional<
+	enum : size_t { value = std::conditional<
 		   (N >> (II-1)) & 0x1,
-		   std::integral_constant<uintmax_t, II-1>,
+		   std::integral_constant<size_t, II-1>,
 		   log2<N, II-1>
 		>::type::value };
 };
 
-template<uintmax_t N>
+template<size_t N>
 struct log2<N, 1>
 {
-	enum : uintmax_t { value = 0 };
+	enum : size_t { value = 0 };
 };
 
 
 
-template<uintmax_t N>
+template<size_t N>
 struct fibonacci
 {
-	enum : uintmax_t { value = fibonacci<N-1>::value + fibonacci<N-2>::value };
+	enum : size_t { value = fibonacci<N-1>::value + fibonacci<N-2>::value };
 };
 
-template<> struct fibonacci<1> { enum : uintmax_t { value = 1 }; };
+template<> struct fibonacci<1> { enum : size_t { value = 1 }; };
 
-template<> struct fibonacci<0> { enum : uintmax_t { value = 0 }; };
+template<> struct fibonacci<0> { enum : size_t { value = 0 }; };
 
-} // ZTL
+} // namespace ZTL

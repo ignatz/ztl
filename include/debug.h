@@ -22,4 +22,4 @@ inline std::string typestring()
 	return abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
 }
 
-} // ZTL
+} // namespace ZTL

@@ -3,12 +3,14 @@
 // Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "integral.h"
-
-#include <cstdlib>
+#include <cstdint>
 #include <functional>
 
+#include "integral.h"
+
 namespace ZTL {
+
+using std::size_t;
 
 template<typename ... Args> struct stack {};
 
