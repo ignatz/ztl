@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <type_traits>
 
-#include "../include/enable_if.h"
+#include "ztl/enable_if.h"
 
 using namespace ZTL;
 

@@ -2,7 +2,7 @@
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 
-#include "../include/tree.h"
+#include "ztl/tree.h"
 
 
 using namespace ZTL;

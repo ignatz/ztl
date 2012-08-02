@@ -9,9 +9,9 @@
 #include <initializer_list>
 #include <iterator>
 
-#include "base.h"
-#include "trait.h"
-#include "enable_if.h"
+#include "ztl/array/base.h"
+#include "ztl/array/trait.h"
+#include "ztl/enable_if.h"
 
 namespace ZTL {
 

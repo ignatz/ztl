@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/pack.h"
+#include "ztl/pack.h"
 
 #include <tuple>
 #include <type_traits>

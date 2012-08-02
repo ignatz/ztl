@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "numeric.h"
+#include "ztl/numeric.h"
 
 namespace ZTL {
 

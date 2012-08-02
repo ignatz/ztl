@@ -5,9 +5,9 @@
 
 #include <boost/serialization/serialization.hpp>
 
-#include "array/impl.h"
-#include "array/trait.h"
-#include "enable_if.h"
+#include "ztl/array/impl.h"
+#include "ztl/array/trait.h"
+#include "ztl/enable_if.h"
 
 namespace boost {
 namespace serialization {

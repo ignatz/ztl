@@ -3,10 +3,10 @@
 // Copyright (c) 2011, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "tree/common.h"
-#include "array.h"
-#include "pack.h"
-#include "enable_if.h"
+#include "ztl/tree/common.h"
+#include "ztl/array.h"
+#include "ztl/pack.h"
+#include "ztl/enable_if.h"
 
 namespace ZTL {
 

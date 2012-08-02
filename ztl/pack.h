@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <functional>
 
-#include "integral.h"
+#include "ztl/integral.h"
 
 namespace ZTL {
 
@@ -138,7 +138,7 @@ struct push_back<Pack<Args...>, ToPush...>
 template<typename NoPack0, typename NoPack1> struct merge;
 
 template<template<typename...> class Pack, typename ... Args0, typename ... Args1>
-struct merge<Pack<Args0...> , Pack<Args1...>>
+struct merge<Pack<Args0...>, Pack<Args1...>>
 {
 	typedef Pack<Args0..., Args1...> type;
 };

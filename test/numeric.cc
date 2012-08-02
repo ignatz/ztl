@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../include/numeric.h"
-#include "../include/integral.h"
+#include "ztl/numeric.h"
+#include "ztl/integral.h"
 
 #include <type_traits>
 #include <cmath>

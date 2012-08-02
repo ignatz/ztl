@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "../include/array.h"
-#include "../include/array/range_access.h"
+#include "ztl/array.h"
+#include "ztl/array/range_access.h"
 
 using namespace ZTL;
 

@@ -11,9 +11,8 @@ using std::size_t;
 
 } // namespace ZTL
 
-#include "tree/common.h"
-#include "tree/simple.h"
+#include "ztl/array/impl.h"
 
 #ifndef __WITHOUT_BOOST__
-#include "tree/serialize.h"
+#include "ztl/array/serialize.h"
 #endif // __WITHOUT_BOOST__
