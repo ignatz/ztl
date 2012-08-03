@@ -29,37 +29,37 @@ using bool_ = std::integral_constant<bool, N>;
 
 // instance comparisons (you shouldn't instantiate constants anyway)
 template<typename T, T N, T M>
-constexpr bool operator == (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator == (ic_<T,N>, ic_<T,M>)
 {
 	return eq_t<T, N, M>::value;
 }
 
 template<typename T, T N, T M>
-constexpr bool operator != (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator != (ic_<T,N>, ic_<T,M>)
 {
 	return un_eq_t<T, N, M>::value;
 }
 
 template<typename T, T N, T M>
-constexpr bool operator > (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator > (ic_<T,N>, ic_<T,M>)
 {
 	return more_t<T, N, M>::value;
 }
 
 template<typename T, T N, T M>
-constexpr bool operator >= (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator >= (ic_<T,N>, ic_<T,M>)
 {
 	return more_eq_t<T, N, M>::value;
 }
 
 template<typename T, T N, T M>
-constexpr bool operator < (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator < (ic_<T,N>, ic_<T,M>)
 {
 	return less_t<T, N, M>::value;
 }
 
 template<typename T, T N, T M>
-constexpr bool operator <= (ic_<T,N> const& x, ic_<T,M> const& y)
+constexpr bool operator <= (ic_<T,N>, ic_<T,M>)
 {
 	return less_eq_t<T, N, M>::value;
 }

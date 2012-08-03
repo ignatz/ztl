@@ -144,7 +144,8 @@ TEST(PackTest, ForEach) {
 
 	int const N = 5;
 	int ar[N];
-	std::function<int (float, int*&)> f = [](float x, int*& pos) { *pos = x+2; ++pos; return x+2; };
+	std::function<int (float, int*&)> f =
+		[](float x, int*& pos) -> float { *pos = x+2; ++pos; return x+2; };
 	std::function<int (float)> f0 = std::bind(f, std::placeholders::_1, ar);
 
 	for_each(f0, 0, 1, 2, 3, 4);
