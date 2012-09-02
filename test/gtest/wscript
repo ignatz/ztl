@@ -7,6 +7,7 @@ def options(opt):
 def configure(cfg):
     cfg.load('g++')
     cfg.env.INCLUDES_GTEST = ['include/gtest', '.']
+    cfg.env.LIB_GTEST      = ['pthread']
 
 def build(bld):
     src = bld.path.get_src().ant_glob('src/*.cc')
