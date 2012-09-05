@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <type_traits>
 
 #include "ztl/integral.h"
 
@@ -270,5 +271,25 @@ inline void for_each(std::function<ReturnType (InputType)> f, Arg0&& arg0, Args&
 	f(arg0);
 	for_each(f, std::forward<Args>(args)...);
 }
+
+
+
+template<int Stop, int Start = 0, int Step = 1, typename Pack = stack<>, typename = void>
+struct range;
+
+template<int Stop, int Start, int Step, typename Pack>
+struct range<Stop, Start, Step, Pack, typename std::enable_if<(Stop>Start)>::type>
+{
+	typedef typename range<
+			Stop, Start+Step, Step,
+			typename push_back<Pack, int_<Start>>::type
+		>::type type;
+};
+
+template<int Stop, int Start, int Step, typename Pack>
+struct range<Stop, Start, Step, Pack, typename std::enable_if<(Start>=Stop)>::type>
+{
+	typedef Pack type;
+};
 
 } // namespace ZTL

@@ -47,7 +47,7 @@ def configure(cfg):
             ]
 
     cfg.env.LIB_0TLTEST       = ['pthread']
-    cfg.env.INCLUDES_0TLTEST  = ['..']
+    cfg.env.INCLUDES_0TLTEST  = ['.']
 
     check_version_cxx(cfg)
 
@@ -59,4 +59,5 @@ def build(bld):
         features        = 'cxx cxxprogram',
         source          = bld.path.get_src().ant_glob('*.cc'),
         use             = ['0TLTEST', 'BOOST', 'gtest'],
+        install_path    = '.',
     )

@@ -154,3 +154,10 @@ TEST(PackTest, ForEach) {
 	}
 }
 
+TEST(PackTest, Range) {
+	typedef range<20, 0, 2> range_t;
+	ASSERT_EQ( 0, (get<0, typename range_t::type>::type::value));
+	ASSERT_EQ( 2, (get<1, typename range_t::type>::type::value));
+	ASSERT_EQ(18, (get<9, typename range_t::type>::type::value));
+	ASSERT_EQ(10, (size<typename range_t::type>::value));
+}
