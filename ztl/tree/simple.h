@@ -28,7 +28,7 @@ public:
 	typedef SimpleTree<
 		TreeStructure<Extend<Ts, Sizes>...>,
 		level+1, TermLevel, void>                     child;
-	typedef typename get<level-1, stack<Ts...>>::type value_type;
+	typedef typename get<level-1, pack<Ts...>>::type value_type;
 
 	constexpr SimpleTree() :
 		_value(), _child()
@@ -102,7 +102,7 @@ public:
 		level = TermLevel,
 	};
 
-	typedef typename get<level-1, stack<Ts...>>::type value_type;
+	typedef typename get<level-1, pack<Ts...>>::type value_type;
 
 	constexpr SimpleTree() :
 		_value()

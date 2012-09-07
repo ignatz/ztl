@@ -13,7 +13,8 @@ namespace ZTL {
 
 using std::size_t;
 
-template<typename ... Args>      struct stack {};
+template<typename ... Args>      struct pack {};
+template<typename T, T ... Args> struct pack_c {};
 
 
 
@@ -38,30 +39,30 @@ struct copy<Source<Args...>, Target>
 
 
 template<typename NoPack, template<typename...> class Target,
-	size_t N, typename Stack = stack<>>
+	size_t N, typename Pack = pack<>>
 struct copy_n;
 
 template<template<typename...> class Source, template<typename...> class Target,
-	size_t N, typename Arg0, typename ... Args, typename ... Stack>
-struct copy_n<Source<Arg0, Args...>, Target, N, stack<Stack...>>
+	size_t N, typename Arg0, typename ... Args, typename ... Pack>
+struct copy_n<Source<Arg0, Args...>, Target, N, pack<Pack...>>
 {
 	typedef typename copy_n<
-			Source<Args...>, Target, N-1, stack<Stack..., Arg0>
+			Source<Args...>, Target, N-1, pack<Pack..., Arg0>
 		>::type type;
 };
 
 template<template<typename...> class Source, template<typename...> class Target,
-	typename Arg0, typename ... Args, typename ... Stack>
-struct copy_n<Source<Arg0, Args...>, Target, 0, stack<Stack...>>
+	typename Arg0, typename ... Args, typename ... Pack>
+struct copy_n<Source<Arg0, Args...>, Target, 0, pack<Pack...>>
 {
-	typedef Target<Stack...> type;
+	typedef Target<Pack...> type;
 };
 
 template<template<typename...> class Source, template<typename...> class Target,
-	typename ... Stack>
-struct copy_n<Source<>, Target, 0, stack<Stack...>>
+	typename ... Pack>
+struct copy_n<Source<>, Target, 0, pack<Pack...>>
 {
-	typedef Target<Stack...> type;
+	typedef Target<Pack...> type;
 };
 
 
@@ -144,7 +145,7 @@ struct get<0, Pack<Arg0, Args...>>
 };
 
 template<size_t N, int ... Values>
-using get_c = get<N, stack<int_<Values>...>>;
+using get_c = get<N, pack<int_<Values>...>>;
 
 
 
@@ -214,20 +215,8 @@ struct Apply_c<F, Pack<Args...>>
 
 
 
-template<typename ReturnType, typename InputType>
-inline void for_each(std::function<ReturnType (InputType)>) {}
-
-template<typename ReturnType, typename InputType, typename Arg0, typename ... Args>
-inline void for_each(std::function<ReturnType (InputType)> f, Arg0&& arg0, Args&& ... args)
-{
-	f(arg0);
-	for_each(f, std::forward<Args>(args)...);
-}
-
-
-
 template<int Stop, int Start = 0, int Step = 1,
-	typename NoPack = stack<>, typename = void>
+	typename NoPack = pack<>, typename = void>
 struct range;
 
 template<int Stop, int Start, int Step,
