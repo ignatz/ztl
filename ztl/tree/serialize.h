@@ -18,8 +18,8 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, Level, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.value;
-	ar & s.child;
+	ar & s.value();
+	ar & s.childs();
 }
 
 // leaf node
@@ -28,7 +28,7 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, TermLevel, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.value;
+	ar & s.value();
 }
 
 // root node
@@ -37,7 +37,7 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, 0, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.child;
+	ar & s.childs();
 }
 
 } // namespace serialization

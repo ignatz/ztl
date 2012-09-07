@@ -13,15 +13,11 @@ namespace ZTL {
 
 using std::size_t;
 
-template<typename ... Args> struct stack {};
+template<typename ... Args>      struct stack {};
 
 
 
-template<typename ... Args>
-struct size
-{
-	enum : size_t { value = sizeof...(Args) };
-};
+template<typename NoPack> struct size;
 
 template<template<typename...> class Pack, typename ... Args>
 struct size<Pack<Args...>>
@@ -95,19 +91,6 @@ struct pop_front<Pack<>, 0>
 
 template<typename NoPack, size_t N = 1> struct pop_back;
 
-// TODO: use this as soon as compiler survives
-//template<template<typename...> class Pack, size_t N, typename ArgLast, typename ... Args>
-//struct pop_back<Pack<Args..., ArgLast>, N>
-//{
-//	typedef typename pop_back<Pack<Args...>, N-1>::type type;
-//};
-
-//template<template<typename...> class Pack, typename ... Args>
-//struct pop_back<Pack<Args...>, 0>
-//{
-//	typedef Pack<Args...> type;
-//};
-
 template<template<typename...> class Pack, size_t N, typename ... Args>
 struct pop_back<Pack<Args...>, N>
 {
@@ -146,54 +129,22 @@ struct merge<Pack<Args0...>, Pack<Args1...>>
 
 
 
-template <size_t N, typename ... Args> struct get;
+template<size_t N, typename NoPack> struct get;
 
-template <size_t N, typename Arg0, typename ... Args>
-struct get<N, Arg0, Args...>
+template<size_t N, template<typename...> class Pack, typename Arg0, typename ... Args>
+struct get<N, Pack<Arg0, Args...>>
 {
-	typedef typename get<N-1, Args...>::type type;
+	typedef typename get<N-1, Pack<Args...>>::type type;
 };
 
-template <typename Arg0, typename ... Args>
-struct get<0, Arg0, Args...>
+template<template<typename...> class Pack, typename Arg0, typename ... Args>
+struct get<0, Pack<Arg0, Args...>>
 {
 	typedef Arg0 type;
 };
 
-template <size_t N, template<typename...> class Pack, typename ... Args>
-struct get<N, Pack<Args...>>
-{
-	typedef typename get<N, Args...>::type type;
-};
-
-template <template<typename...> class Pack, typename ... Args>
-struct get<0, Pack<Args...>>
-{
-	typedef typename get<0, Args...>::type type;
-};
-
-template<size_t N, int ... Args>
-using get_c = get<N, int_<Args>...>;
-
-
-
-template<size_t N>
-struct arg
-{
-	template<typename Arg0, typename ... Args>
-	constexpr static auto get(Arg0&&, Args&& ... args) noexcept -> decltype(arg<N-1>::get(std::forward<Args>(args)...)) {
-		return arg<N-1>::get(std::forward<Args>(args)...);
-	}
-};
-
-template<>
-struct arg<0>
-{
-	template<typename Arg0, typename ... Args>
-	constexpr static Arg0&& get(Arg0&& arg0, Args&& ...) noexcept {
-		return std::forward<Arg0>(arg0);
-	}
-};
+template<size_t N, int ... Values>
+using get_c = get<N, stack<int_<Values>...>>;
 
 
 
@@ -232,7 +183,8 @@ template<typename Type, template<typename...> class Pack,
 	template<typename, typename> class Predicate, int Pos, typename Arg0, typename ... Args>
 struct find<Type, Pack<Arg0, Args...>, Predicate, Pos>
 {
-	enum : int { value = Predicate<Arg0, Type>::value ? Pos : find<Type, Pack<Args...>, Predicate, Pos+1>::value };
+	enum : int { value = Predicate<Arg0, Type>::value ? \
+					Pos : find<Type, Pack<Args...>, Predicate, Pos+1>::value };
 };
 
 template<typename Type, template<typename...> class Pack,
@@ -274,22 +226,27 @@ inline void for_each(std::function<ReturnType (InputType)> f, Arg0&& arg0, Args&
 
 
 
-template<int Stop, int Start = 0, int Step = 1, typename Pack = stack<>, typename = void>
+template<int Stop, int Start = 0, int Step = 1,
+	typename NoPack = stack<>, typename = void>
 struct range;
 
-template<int Stop, int Start, int Step, typename Pack>
-struct range<Stop, Start, Step, Pack, typename std::enable_if<(Stop>Start)>::type>
+template<int Stop, int Start, int Step,
+	template<typename ...> class Pack, typename ... Args>
+struct range<Stop, Start, Step, Pack<Args...>,
+	typename std::enable_if<(Stop>Start)>::type>
 {
 	typedef typename range<
 			Stop, Start+Step, Step,
-			typename push_back<Pack, int_<Start>>::type
+			typename push_back<Pack<Args...>, int_<Start>>::type
 		>::type type;
 };
 
-template<int Stop, int Start, int Step, typename Pack>
-struct range<Stop, Start, Step, Pack, typename std::enable_if<(Start>=Stop)>::type>
+template<int Stop, int Start, int Step,
+	template<typename ...> class Pack, typename ... Args>
+struct range<Stop, Start, Step, Pack<Args...>,
+	typename std::enable_if<(Start>=Stop)>::type>
 {
-	typedef Pack type;
+	typedef Pack<Args...> type;
 };
 
 } // namespace ZTL

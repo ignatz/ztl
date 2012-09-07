@@ -24,11 +24,14 @@ inline std::function<ReturnType(Args...)> bind_mf(ReturnType(Object::*mem_ptr)(A
 template<typename Iteratable>
 struct Eiterator
 {
-	typedef size_t size_type;
+	typedef size_t                          size_type;
 	typedef typename Iteratable::value_type value_type;
 	typedef typename Iteratable::iterator   iterator;
 
-	typedef std::pair<size_type, value_type> pair_type;
+	typedef std::pair<
+			size_type,
+			std::reference_wrapper<value_type>
+		> pair_type;
 
 	// TODO: check return value should be different
 	void operator++ ()
@@ -42,7 +45,7 @@ struct Eiterator
 		return make_pair(mCnt, std::ref(*mIt));
 	}
 
-	bool operator!= (Eiterator<Iteratable> const& e)
+	bool operator!= (Eiterator<Iteratable> const& e) const
 	{
 		return mIt != e.mIt;
 	}
@@ -56,6 +59,11 @@ struct Enumerate
 {
 	Enumerate(Iteratable& it) :
 		mRef(it) {}
+
+	typename Iteratable::size_type size() const
+	{
+		return mRef.size();
+	}
 
 	Eiterator<Iteratable> begin()
 	{
@@ -78,80 +86,124 @@ Enumerate<Iteratable> enumerate(Iteratable& a)
 
 
 
-template<typename Out, typename In, size_t Idx = 0>
-struct Transform
+template<size_t N, typename ... Returns, typename ... Args>
+typename get<N, stack<Returns...>>::type
+transform_helper(
+	std::tuple<Args...> const& t,
+	std::tuple<std::function<Returns(Args)>...> const& f)
 {
-	template<typename ... Args>
-	static Out doit(std::tuple<Args...> const& t, std::function<Out (In)> f)
+	return std::get<N>(f)(std::get<N>(t));
+}
+
+
+template<template<typename ...> class Range, typename ... Returns,
+	typename ... Args, typename ... Ns>
+std::tuple<Returns...>
+transform(
+	std::tuple<Args...> const& t,
+	std::tuple<std::function<Returns(Args)>...> const& f,
+	Range<Ns...>)
+{
+	return std::make_tuple(std::get<Ns::value>(f)(std::get<Ns::value>(t))...);
+}
+
+template<template<typename ...> class Range, typename ... Args,
+	typename ... Ns, typename T, typename U>
+auto transform(
+	std::tuple<Args...> const& t,
+	std::function<T (U)> const& f,
+	Range<Ns...>)
+	-> decltype(std::make_tuple(f(std::get<Ns::value>(t))...))
+{
+	return std::make_tuple(f(std::get<Ns::value>(t))...);
+}
+
+
+template<typename ... T>
+inline void unpack_fun(T&& ...) {}
+
+template<typename ... Iteratables>
+struct Ziterator;
+
+template<typename ... Iteratables>
+struct Ziterator
+{
+	typedef std::tuple<
+			std::reference_wrapper<typename Iteratables::value_type>...
+		> tuple_type;
+
+	void operator++ ()
 	{
-		return f(std::get<Idx>(t));
+		next(mIts, typename range<2>::type {});
 	}
+
+	tuple_type operator* ()
+	{
+		return deref(mIts, typename range<2>::type {});
+	}
+
+	bool operator!= (Ziterator<Iteratables...> const& e) const
+	{
+		// TODO: maybe take end from shortest iteratable
+		return (std::get<0>(mIts)) != (std::get<0>(e.mIts));
+	}
+
+	std::tuple<typename Iteratables::iterator ...> mIts;
+private:
+
+	template<template<typename ...> class Range, typename ... Args,
+		typename ... Ns>
+	std::tuple<std::reference_wrapper<typename Args::value_type>...>
+	deref(
+		std::tuple<Args...> const& t,
+		Range<Ns...>)
+	{
+		return std::make_tuple(std::ref(*std::get<Ns::value>(t))...);
+	}
+
+	template<template<typename ...> class Range,
+		typename ... Args, typename ... Ns>
+	void next(
+		std::tuple<Args...>& t,
+		Range<Ns...>)
+	{
+		unpack_fun(++std::get<Ns::value>(t)...);
+	}
+
 };
 
 
-
-template<template<typename ...> class Range, typename ... In, typename ... Idx>
-std::tuple<In ...> transform(
-	std::tuple<In...> const& t,
-	Range<Idx...> r = typename range<size<In...>::value>::type {})
+template<typename ... Iteratables>
+struct Zip
 {
-	std::make_tuple(Transform<int, int, Idx::value>::doit(t, [](int i) { return i+1; })...);
-}
-
-//template<typename ... Iteratables>
-//struct Ziterator
-//{
-	//typedef std::tuple<
-			//std::reference_wrapper<Iteratables>...
-		//> tuple_type;
-
-	//void operator++ ()
-	//{
-	//}
-
-	//tuple_type operator* ()
-	//{
-	//}
-
-	//bool operator!= (Ziterator<Iteratable> const& e)
-	//{
-		//return mIts[0] != e.mIts[0];
-	//}
-
-	//std::tuple<typename Iteratable::iterator ...> mIts;
-//};
-
-
-//template<typename ... Iteratables>
-//struct Zip
-//{
-	//Zip(Iteratables& ... its) :
-		//mBegins(make_tuple(begin(its)...)),
+	Zip(Iteratables& ... its) :
+		mBegins(make_tuple(std::begin(its) ...))
 		//mEnds(make_tuple(end(its)...))
-	//{}
+	{}
 
-	//Ziterator<Iteratables...> begin()
-	//{
-		//return Ziterator<Iteratables...> {mBegins};
-	//};
+	Ziterator<Iteratables...> begin()
+	{
+		return Ziterator<Iteratables...> {mBegins};
+	};
 
-	//Ziterator<Iteratables...> end()
-	//{
+	Ziterator<Iteratables...> end()
+	{
 		//return Ziterator<Iteratables...> {mEnds};
-	//};
+		return Ziterator<Iteratables...> {mBegins};
+	};
 
-	//typedef std::tuple<
-			//typename Iteratables::iterator ...
-		//> tuple_type;
+	typedef std::tuple<
+			typename Iteratables::iterator ...
+		> tuple_type;
 
-	//tuple_type mBegins;
+	tuple_type mBegins;
 	//tuple_type mEnds;
-//};
+};
 
-//template<typename ... Iteratables>
-//Zip<Iteratables ...> zip(Iteratables& ... its)
-//{
-	//return Zip<Iteratables...> (its...);
-//}
+template<typename ... Iteratables>
+Zip<Iteratables ...> zip(Iteratables& ... its)
+{
+	return Zip<Iteratables...> (its...);
+}
 
 } // namespace ZTL
