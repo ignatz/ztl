@@ -10,6 +10,7 @@
 #include "functional.h"
 #include "pack.h"
 
+namespace ZTL {
 
 template<typename Iteratable>
 struct Eiterator
@@ -195,3 +196,5 @@ Zip<Iteratables ...> zip(Iteratables& ... its)
 {
 	return Zip<Iteratables...> (its...);
 }
+
+} // namespace ZTL
