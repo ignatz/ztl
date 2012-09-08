@@ -52,9 +52,9 @@ TEST(FunctionalTest, Transform) {
 		std::function<float(int)>,
 		std::function<float(int)>> u(f, f, f, f);
 
-	ASSERT_FLOAT_EQ(1.1, transform_helper<1>(t, u));
-	auto v = transform(t, u, range<4>::type {});
-	auto w = transform(t, f, range<4>::type {});
+	//ASSERT_FLOAT_EQ(1.1, transform_helper<1>(t, u));
+	auto v = transform(t, u);
+	auto w = transform(t, f);
 
 	ASSERT_FLOAT_EQ(0.1, std::get<0>(v));
 	ASSERT_FLOAT_EQ(1.1, std::get<1>(v));

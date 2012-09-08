@@ -4,6 +4,7 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <type_traits>
+#include <tuple>
 
 #include "enable_if.h"
 #include "pack.h"
@@ -27,7 +28,6 @@ arg(Arg0 &&, Args&& ... args) noexcept
 }
 
 
-
 template<typename ReturnType, typename InputType>
 inline void for_each(std::function<ReturnType (InputType)>) {}
 
@@ -36,5 +36,49 @@ inline void for_each(std::function<ReturnType (InputType)> f, Arg0&& arg0, Args&
 {
 	f(arg0); for_each(f, std::forward<Args>(args)...);
 }
+
+
+template<typename T, typename U, typename ... Args,
+	template<typename ...> class Range, typename ... Ns>
+auto transform_helper(
+	std::tuple<Args...> const& t,
+	std::function<T (U)> const& f,
+	Range<Ns...>)
+	-> decltype(std::make_tuple(f(std::get<Ns::value>(t))...))
+{
+	return std::forward_as_tuple(f(std::get<Ns::value>(t))...);
+}
+
+template<typename ... Returns, typename ... Args,
+	template<typename ...> class Range, typename ... Ns>
+std::tuple<Returns...>
+transform_helper(
+	std::tuple<Args...> const& t,
+	std::tuple<std::function<Returns(Args)>...> const& f,
+	Range<Ns...>)
+{
+	return std::forward_as_tuple(std::get<Ns::value>(f)(std::get<Ns::value>(t))...);
+}
+
+
+template<typename ... Returns, typename ... Args>
+std::tuple<Returns...> transform(
+	std::tuple<Args...> const& t,
+	std::tuple<std::function<Returns(Args)>...> const& f)
+{
+	return transform_helper(t, f, typename range<size<std::tuple<Args...>>::value>::type {});
+}
+
+template<typename T, typename U, typename ... Args>
+auto transform(
+	std::tuple<Args...> const& t,
+	std::function<T (U)> const& f)
+	-> decltype(transform_helper(t, f, typename range<size<std::tuple<Args...>>::value>::type {}))
+{
+	return transform_helper(t, f, typename range<size<std::tuple<Args...>>::value>::type {});
+}
+
+
+template<typename ... T> inline void unpack_fun(T&& ...) {}
 
 } // namepsace ZTL
