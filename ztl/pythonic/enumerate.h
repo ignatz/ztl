@@ -14,7 +14,7 @@ namespace ZTL {
 
 template<typename Container>
 using enum_wrapped_value = std::pair<size_t,
-	std::reference_wrapper<typename Container::value_type>>;
+	typename Container::value_type&>;
 
 template<typename Container>
 struct enum_pair_iter :
@@ -39,10 +39,6 @@ private:
 	template <typename>
 	friend class enum_pair_iter;
 
-	typedef std::pair<
-		size_t, std::reference_wrapper<
-		typename Container::value_type>> pair_t;
-
 	template<typename T>
 	bool equal(enum_pair_iter<T> const& other) const
 	{
@@ -55,7 +51,8 @@ private:
 		++_cnt;
 	}
 
-	pair_t dereference() const
+	enum_wrapped_value<Container>
+	dereference() const
 	{
 		return make_pair(_cnt, std::ref(*_it));
 	}
@@ -76,27 +73,28 @@ public:
 	typedef enum_pair_iter<Container const> const_iterator;
 
 	enumerate_proxy(Container& it) :
-		mRef(it)
+		_ref(it)
 	{}
 
 	typename Container::size_type size() const
 	{
-		return mRef.size();
+		return _ref.size();
 	}
 
 	iterator begin()
 	{
-		return mRef.begin();
+		return _ref.begin();
 	};
 
 	iterator end()
 	{
-		return mRef.end();
+		return _ref.end();
 	};
 
 private:
-	Container& mRef;
+	Container& _ref;
 };
+
 
 template<typename Container>
 enumerate_proxy<Container> enumerate(Container& a)

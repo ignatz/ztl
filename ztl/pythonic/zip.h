@@ -12,83 +12,121 @@
 
 namespace ZTL {
 
-template<typename ... Containers>
-struct zip_iter;
+// template aliases somehow don't work in this context
+//template<typename ... Containers>
+//using zip_wrapped_value = std::tuple<typename Containers::value_type& ...>;
+
+//template<typename ... Containers>
+//using zip_wrapped_iter = std::tuple<typename Containers::iterator...>;
 
 template<typename ... Containers>
-struct zip_iter
+struct zip_tuple_iter :
+	public boost::iterator_facade<
+		zip_tuple_iter<Containers...>,
+		std::tuple<typename Containers::value_type& ...>,
+		boost::forward_traversal_tag,
+		std::tuple<typename Containers::value_type& ...>
+	>
 {
+public:
 	typedef std::tuple<
-			std::reference_wrapper<typename Containers::value_type>...
-		> tuple_type;
+		typename Containers::value_type& ...> _value_type;
+	typedef std::tuple<
+		typename Containers::iterator...>     _iter_type;
 
-	void operator++ ()
-	{
-		next(mIts, typename range<2>::type {});
-	}
+	zip_tuple_iter() :
+		_its()
+	{}
 
-	tuple_type operator* ()
-	{
-		return deref(mIts, typename range<2>::type {});
-	}
+	//zip_tuple_iter(zip_wrapped_iter<Containers...> its)
+	zip_tuple_iter(_iter_type its)
+		: _its(its)
+	{}
 
-	bool operator!= (zip_iter<Containers...> const& e) const
-	{
-		// TODO: maybe take end from shortest iteratable
-		return (std::get<0>(mIts)) != (std::get<0>(e.mIts));
-	}
-
-	std::tuple<typename Containers::iterator ...> mIts;
 private:
+	friend class boost::iterator_core_access;
+	template <typename...>
+	friend class zip_tuple_iter;
 
-	template<template<typename ...> class Range, typename ... Args,
-		typename ... Ns>
-	std::tuple<std::reference_wrapper<typename Args::value_type>...>
-	deref(
-		std::tuple<Args...> const& t,
-		Range<Ns...>)
+	template<typename ... T>
+	bool equal(zip_tuple_iter<T...> const& other) const
 	{
-		return std::make_tuple(std::ref(*std::get<Ns::value>(t))...);
+		return this->_its == other._its;
+	}
+
+	void increment()
+	{
+		_increment(typename range<size<pack<Containers...>>::value>::type {});
+	}
+
+	_value_type
+	dereference() const
+	{
+		return _dereference(typename range<size<pack<Containers...>>::value>::type {});
+	}
+
+	// helpers
+	template<template<typename ...> class Range,
+		typename ... Ns>
+	_value_type
+	_dereference(Range<Ns...>) const
+	{
+		return _value_type(std::ref(*std::get<Ns::value>(_its))...);
 	}
 
 	template<template<typename ...> class Range,
-		typename ... Args, typename ... Ns>
-	void next(
-		std::tuple<Args...>& t,
-		Range<Ns...>)
+		typename ... Ns>
+	void _increment(Range<Ns...>)
 	{
-		unpack_fun(++std::get<Ns::value>(t)...);
+		unpack_fun(++std::get<Ns::value>(_its)...);
 	}
 
+	// member, holding iterator position
+	_iter_type _its;
 };
 
 
 template<typename ... Containers>
 struct zip_proxy
 {
+public:
 	zip_proxy(Containers& ... its) :
-		mBegins(make_tuple(std::begin(its) ...))
-		//mEnds(make_tuple(end(its)...))
+		_ref(its ...)
 	{}
 
-	zip_iter<Containers...> begin()
+	zip_tuple_iter<Containers...> begin()
 	{
-		return {mBegins};
+		return _begin(typename range<size<pack<Containers...>>::value>::type {});
 	};
 
-	zip_iter<Containers...> end()
+	zip_tuple_iter<Containers...> end()
 	{
-		// TODO: must be ends
-		return {mBegins};
+		return _end(typename range<size<pack<Containers...>>::value>::type {});
 	};
 
-	typedef std::tuple<
-			typename Containers::iterator ...
-		> tuple_type;
+private:
+	// helper
+	template<template<typename ...> class Range,
+		typename ... Ns>
+	zip_tuple_iter<Containers...>
+	_begin(Range<Ns...>)
+	{
+		return std::make_tuple(
+			std::begin(std::get<Ns::value>(_ref))...);
+	}
 
-	tuple_type mBegins;
-	//tuple_type mEnds;
+	template<template<typename ...> class Range,
+		typename ... Ns>
+	zip_tuple_iter<Containers...>
+	_end(Range<Ns...>)
+	{
+		return std::make_tuple(
+			std::end(std::get<Ns::value>(_ref))...);
+	}
+
+	typename std::tuple<Containers&...> _ref;
 };
+
 
 template<typename ... Containers>
 zip_proxy<Containers ...> zip(Containers& ... its)
