@@ -35,6 +35,7 @@ def configure(cfg):
             lib='serialization system thread',
             uselib_store='BOOST')
 
+    cfg.env.INCLUDES_0TLTEST = ['.']
     cfg.env.CXXFLAGS_0TLTEST = [
             '-std=c++11',
             '-g', '-O1',
@@ -44,10 +45,7 @@ def configure(cfg):
             '-ftemplate-depth=1500',
             #'-D_GLIBCXX_PROFILE',
             #'-D_GLIBCXX_DEBUG',
-            ]
-
-    cfg.env.LIB_0TLTEST       = ['pthread']
-    cfg.env.INCLUDES_0TLTEST  = ['.']
+        ]
 
     check_version_cxx(cfg)
 
