@@ -32,7 +32,7 @@ using negative = positive<-N>;
 
 
 template<int ... N>
-struct add{
+struct add {
 	enum : int { value = 0 };
 };
 

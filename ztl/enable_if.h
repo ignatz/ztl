@@ -6,6 +6,8 @@
 #include <type_traits>
 
 #include "ztl/pack.h"
+#include "ztl/integral.h"
+#include "ztl/numeric.h"
 
 namespace ZTL {
 
@@ -20,5 +22,11 @@ using any_of = enable_if<find<T, stack<Args...>>::value >= 0, void>;
 
 template<typename T, typename ... Args>
 using non_of = enable_if<find<T, stack<Args...>>::value == -1, void>;
+
+template<typename T, typename ... Args>
+using is_same = bool_<add<std::is_same<T, Args>::value...>::value>;
+
+template<typename T, typename ... Args>
+using all_of = enable_if<is_same<T, Args...>::value>;
 
 } // namespace ZTL
