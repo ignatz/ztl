@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "ztl/pack.h"
+#include "ztl/runtime.h"
 
 #include <tuple>
 #include <type_traits>
@@ -16,10 +17,8 @@ TEST(PackTest, ArgumentPackAccess) {
 	ASSERT_TRUE((std::is_same<int,    typename get<2, my_tuple>::type>::value));
 	ASSERT_TRUE((std::is_same<double, typename get<3, my_tuple>::type>::value));
 
-	ASSERT_TRUE((std::is_same<double, typename get<1, int, double, int>::type>::value));
-
-	ASSERT_EQ(4, arg<0>::get(4,5.3));
-	ASSERT_EQ(5.3, arg<1>::get(4,5.3));
+	ASSERT_EQ(4, arg<0>(4,5.3));
+	ASSERT_EQ(5.3, arg<1>(4,5.3));
 
 	ASSERT_EQ(4, (size<my_tuple>::value));
 }
@@ -154,3 +153,21 @@ TEST(PackTest, ForEach) {
 	}
 }
 
+TEST(PackTest, Range) {
+	typedef range<0> range0_t;
+	typedef range<1> range1_t;
+	ASSERT_EQ(0, (size<typename range0_t::type>::value));
+	ASSERT_EQ(1, (size<typename range1_t::type>::value));
+	ASSERT_EQ(0, (get<0, typename range1_t::type>::type::value));
+
+	typedef range<20, 0, 2> range_t;
+	ASSERT_EQ( 0, (get<0, typename range_t::type>::type::value));
+	ASSERT_EQ( 2, (get<1, typename range_t::type>::type::value));
+	ASSERT_EQ(18, (get<9, typename range_t::type>::type::value));
+	ASSERT_EQ(10, (size<typename range_t::type>::value));
+
+
+	//typedef range_c<20, 0, 2> rangec_t;
+	//ASSERT_EQ( 0, (get_c<0, typename rangec_t::type>::value));
+	//ASSERT_EQ(18, (get_c<9, typename rangec_t::type>::value));
+}
