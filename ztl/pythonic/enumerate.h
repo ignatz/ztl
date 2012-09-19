@@ -21,7 +21,7 @@ struct enum_pair_iter :
 	public boost::iterator_facade<
 		enum_pair_iter<Container>,
 		enum_wrapped_value<Container>,
-		boost::forward_traversal_tag,
+		boost::incrementable_traversal_tag,
 		enum_wrapped_value<Container>
 	>
 {

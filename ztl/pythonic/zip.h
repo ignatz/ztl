@@ -24,7 +24,7 @@ struct zip_tuple_iter :
 	public boost::iterator_facade<
 		zip_tuple_iter<Containers...>,
 		std::tuple<typename Containers::value_type& ...>,
-		boost::forward_traversal_tag,
+		boost::incrementable_traversal_tag,
 		std::tuple<typename Containers::value_type& ...>
 	>
 {
