@@ -11,7 +11,7 @@ int test(T, typename any_of<T, int, char, float>::type* = 0) { return 42; }
 template<typename T>
 int test(T, typename non_of<T, int, char, float>::type* = 0) { return 23; }
 
-TEST(EnableTest, BasicCheck) {
+TEST(TypeTraits, Enable) {
 	ASSERT_TRUE((std::is_same<typename ZTL::enable_if<true>::type, void>::value));
 	ASSERT_TRUE((std::is_same<typename ZTL::disable_if<false>::type, void>::value));
 
@@ -28,7 +28,7 @@ TEST(EnableTest, BasicCheck) {
 	ASSERT_EQ(23, test((unsigned int)0));
 }
 
-TEST(EnableTest, IsSame)
+TEST(TypeTraits, IsSame)
 {
 	ASSERT_TRUE((is_same<int, int, int, int, int, int>::value));
 	ASSERT_FALSE((is_same<int, int, int, int, char, int>::value));

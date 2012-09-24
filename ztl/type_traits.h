@@ -13,7 +13,7 @@ namespace ZTL {
 
 // type relations
 template<typename T, typename ... Args>
-using is_same = bool_<add<std::is_same<T, Args>::value...>::value>;
+using is_same = bool_<min<std::is_same<T, Args>::value...>::value>;
 
 
 

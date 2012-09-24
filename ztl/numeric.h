@@ -122,9 +122,11 @@ template<int N, int M> using more    = more_t<int, N, M>;
 template<int N, int M> using more_eq = more_eq_t<int, N, M>;
 
 
+template<typename T, template<typename, T, T> class C, T ... N>
+struct extremum_t;
 
 template<typename T, template<typename, T, T> class C, T N, T ... M>
-struct extremum_t {
+struct extremum_t<T, C, N, M ...> {
 	enum : T { value = C<T, N, extremum_t<T, C, M...>::value>::value ? \
 	   N : extremum_t<T, C, M...>::value };
 };
@@ -134,11 +136,11 @@ struct extremum_t<T, C, N> {
 	enum : T { value = N };
 };
 
-template<int N, int ... M>
-using max = extremum_t<int, more_t, N, M...>;
+template<int ... N>
+using max = extremum_t<int, more_t, N...>;
 
-template<int N, int ... M>
-using min = extremum_t<int, less_t, N, M...>;
+template<int ... N>
+using min = extremum_t<int, less_t, N...>;
 
 
 
