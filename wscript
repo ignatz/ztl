@@ -9,7 +9,7 @@ def check_version_cxx(cfg):
         okmsg    = "ok",
         errmsg   = error,
         type     = "cxx",
-        cxxflags = "-std=c++11",
+        cxxflags = "-std=c++0x",
         execute  = False,
         fragment = """
                        #if __cplusplus != 201103L
@@ -24,7 +24,7 @@ def configure(cfg):
     cfg.load('g++')
     check_version_cxx(cfg)
 
-    cfg.env.CXXFLAGS_0TL = [ '-std=c++11' ]
+    cfg.env.CXXFLAGS_0TL = [ '-std=c++0x' ]
 
 def build(bld):
     bld(
