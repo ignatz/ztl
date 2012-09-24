@@ -13,7 +13,8 @@ def build(bld):
     src = bld.path.get_src().ant_glob('src/*.cc')
 
     bld.stlib(
-        target = 'gtest',
-        source = src,
-        use    = ['GTEST'],
+        target   = 'gtest',
+        source   = src,
+        use      = ['GTEST'],
+        cxxflags = ['-Wall', '-Wextra'],
     )

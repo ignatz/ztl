@@ -4,21 +4,6 @@ import sys, os
 components = ['gtest', '..']
 recurse    = lambda ctx : map(lambda proj: ctx.recurse(proj), components)
 
-def check_version_cxx(cfg):
-    error = "g++-4.7, clang-3.1 or newer required"
-
-    cfg.check_cxx(
-        msg      = "Checking compiler version",
-        errmsg   = error,
-        type     = "cxx",
-        cxxflags = "-std=c++11",
-        execute  = False,
-        fragment = """
-                       #if __cplusplus != 201103L
-                         #error %(MSG)s
-                       #endif
-                   """ % { "MSG" : error })
-
 def options(opt):
     opt.load('g++')
     opt.load('boost')
@@ -35,20 +20,6 @@ def configure(cfg):
             lib='serialization system thread',
             uselib_store='BOOST')
 
-    cfg.env.INCLUDES_0TLTEST = ['.']
-    cfg.env.CXXFLAGS_0TLTEST = [
-            '-std=c++11',
-            '-g', '-O1',
-            '-pedantic',
-            '-Wall',
-            '-Wextra',
-            '-ftemplate-depth=1500',
-            #'-D_GLIBCXX_PROFILE',
-            #'-D_GLIBCXX_DEBUG',
-        ]
-
-    check_version_cxx(cfg)
-
 def build(bld):
     recurse(bld)
 
@@ -56,6 +27,17 @@ def build(bld):
         target          = 'main',
         features        = 'cxx cxxprogram',
         source          = bld.path.get_src().ant_glob('*.cc'),
-        use             = ['0TLTEST', 'ZTL', 'BOOST', 'gtest'],
+        use             = ['ZTL', 'BOOST', 'gtest'],
         install_path    = 'bin',
+        cxxflags        = [
+                '-g',
+                '-O1',
+                '-Wall',
+                '-Wextra',
+                '-pedantic',
+                '-ftemplate-depth=1500',
+                #'-D_GLIBCXX_PROFILE',
+                #'-D_GLIBCXX_DEBUG'
+            ],
+        includes       = '.',
     )
