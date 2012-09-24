@@ -7,7 +7,7 @@
 
 #include "ztl/array/impl.h"
 #include "ztl/array/trait.h"
-#include "ztl/enable_if.h"
+#include "ztl/type_traits.h"
 
 namespace boost {
 namespace serialization {
