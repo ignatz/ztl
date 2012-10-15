@@ -54,7 +54,7 @@ def build(bld):
                 '-Wall',
                 '-Wextra',
                 '-pedantic',
-                '-ftemplate-depth=1500',
+                '-ftemplate-depth=3000',
                 #'-D_GLIBCXX_PROFILE',
                 #'-D_GLIBCXX_DEBUG'
             ],

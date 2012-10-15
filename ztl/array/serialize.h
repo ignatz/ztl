@@ -4,6 +4,7 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
 
 #include "ztl/array/impl.h"
 #include "ztl/array/trait.h"
@@ -18,7 +19,8 @@ typename T, size_t N, typename ... Args>
 void serialize(Archiver & ar, ZTL::ArrayInterface<Class<T, N, 0, Args...>, N> & s,
 	unsigned int const)
 {
-	ar & s.array;
+	using namespace boost::serialization;
+	ar & make_nvp("array", s.array);
 }
 
 
@@ -27,7 +29,8 @@ void serialize(Archiver & ar, ZTL::ArrayInterface<Class<T, N, 0, Args...>, N> & 
 template<typename Archiver, typename T, size_t N, size_t Idx>
 void serialize(Archiver & ar, ZTL::BaseArray<T, N, Idx>& s, unsigned int const)
 {
-	ar & s.value;
+	using namespace boost::serialization;
+	ar & make_nvp("value", s.value);
 }
 
 
@@ -39,8 +42,9 @@ template<typename Archiver, template<typename, size_t, size_t, typename...> clas
 typename ZTL::enable_if<(Idx+1<N), void>::type
 serialize(Archiver & ar, Class<T, N, Idx, Args...>& s, unsigned int const)
 {
-	ar & boost::serialization::base_object<ZTL::BaseArray<T, N, Idx>>(s);
-	ar & s.next;
+	using namespace boost::serialization;
+	ar & make_nvp("base", base_object<ZTL::BaseArray<T, N, Idx>>(s))
+	   & make_nvp("next", s.next);
 }
 
 template<typename Archiver, template<typename, size_t, size_t, typename...> class Class,
@@ -49,7 +53,8 @@ template<typename Archiver, template<typename, size_t, size_t, typename...> clas
 typename ZTL::enable_if<(Idx+1>=N), void>::type
 serialize(Archiver & ar, Class<T, N, Idx, Args...>& s, unsigned int const)
 {
-	ar & boost::serialization::base_object<ZTL::BaseArray<T, N, Idx>>(s);
+	using namespace boost::serialization;
+	ar & make_nvp("base", base_object<ZTL::BaseArray<T, N, Idx>>(s));
 }
 
 } // namespace serialization

@@ -4,6 +4,7 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
 
 #include "ztl/tree/simple.h"
 #include "ztl/type_traits.h"
@@ -18,8 +19,9 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, Level, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.value();
-	ar & s.childs();
+	using namespace boost::serialization;
+	ar & make_nvp("value", s.value())
+	   & make_nvp("child", s.childs());
 }
 
 // leaf node
@@ -28,7 +30,8 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, TermLevel, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.value();
+	using namespace boost::serialization;
+	ar & make_nvp("value", s.value());
 }
 
 // root node
@@ -37,7 +40,8 @@ void serialize(Archiver & ar, ZTL::SimpleTree<
 		ZTL::TreeStructure<ZTL::Extend<Ts, Sizes>...>, 0, TermLevel, void> & s,
 	unsigned int const)
 {
-	ar & s.childs();
+	using namespace boost::serialization;
+	ar & make_nvp("child", s.childs());
 }
 
 } // namespace serialization
