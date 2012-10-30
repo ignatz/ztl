@@ -204,11 +204,14 @@ TEST(StandardArrayTest, Casting) {
 		int const (& y)[42] = b;
 		std::array<int, 42>& z = b;
 
+		std::array<int, 42> c(b);
+
 		for (size_t ii=0; ii < b.size(); ++ii)
 		{
 			ASSERT_EQ(ii, x[ii]);
 			ASSERT_EQ(ii, y[ii]);
 			ASSERT_EQ(ii, z[ii]);
+			ASSERT_EQ(ii, c[ii]);
 		}
 	}
 }

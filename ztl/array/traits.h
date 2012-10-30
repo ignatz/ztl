@@ -23,16 +23,23 @@ struct is_array<std::array<T, N>>
 };
 
 template<typename T, size_t N>
+struct is_array<std::array<T, N> const>
+{
+	enum : bool { value = true };
+};
+
+template<typename T, size_t N>
 struct is_array<ArrayInterface<T, N>>
 {
 	enum : bool { value = true };
 };
 
 template<typename T, size_t N>
-struct is_array<T[N]>
+struct is_array<ArrayInterface<T, N> const>
 {
 	enum : bool { value = true };
 };
+
 
 
 template<typename T>

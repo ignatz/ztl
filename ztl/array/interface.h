@@ -74,17 +74,29 @@ public:
 	}
 
 	// casting
-	template<typename Type,
-		typename = typename enable_if<is_array<Type>::value>::type>
-	operator Type& () { return reinterpret_cast<Type&>(*this); }
-	template<typename Type,
-		typename = typename enable_if<is_array<Type>::value>::type>
-	constexpr operator Type const& () const { return reinterpret_cast<Type const&>(*this); }
+	template<typename Type, typename = typename enable_if<
+			ZTL::is_array<Type>::value>::type>
+	operator Type const& () const
+	{
+		return reinterpret_cast<Type const&>(*this);
+	}
 
-	T*       data()       { return begin(); }
-	T const* data() const { return cbegin(); }
+	template<typename Type, typename = typename enable_if<
+			std::is_array<Type>::value>::type>
+	operator Type& ()
+	{
+		return reinterpret_cast<Type&>(*this);
+	}
 
-	// stl algorithm
+	template<template<typename, size_t> class Array, typename Type,
+		typename = typename std::enable_if<ZTL::is_array<Array<Type, N>>::value>::type>
+	operator Array<Type, N>& ()
+	{
+		return reinterpret_cast<Array<Type, N>&>(*this);
+	}
+
+
+	// stl conformity
 	static constexpr size_type size() { return N; }
 
 	void fill(value_type const& u) { std::fill_n(begin(), size(), u);}
@@ -96,7 +108,10 @@ public:
 		std::swap_ranges(begin(), end(), begin(other));
 	}
 
-//private:
+	T*       data()       { return begin(); }
+	T const* data() const { return cbegin(); }
+
+private:
 	array_type array;
 };
 
