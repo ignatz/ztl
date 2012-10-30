@@ -3,8 +3,10 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <type_traits>
 #include <array>
+#include <ztl/type_traits.h>
+#include <ztl/array/interface_fwd.h>
+#include <ztl/array/detail/base.h>
 
 namespace ZTL {
 
@@ -26,6 +28,11 @@ struct is_array<ArrayInterface<T, N>>
 	enum : bool { value = true };
 };
 
+template<typename T, size_t N>
+struct is_array<T[N]>
+{
+	enum : bool { value = true };
+};
 
 
 template<typename T>
@@ -39,7 +46,7 @@ template<template<typename, size_t, size_t, typename...> class Class,
 struct is_array_impl<Class<T, N, Idx, Args...>>
 {
 	enum : bool { value = std::is_base_of<
-			BaseArray<T, N, Idx>,
+			detail::BaseArray<T, N, Idx>,
 			Class<T, N, Idx, Args...>
 		>::value };
 };

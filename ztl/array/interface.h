@@ -9,8 +9,7 @@
 #include <initializer_list>
 #include <iterator>
 
-#include "ztl/array/base.h"
-#include "ztl/array/trait.h"
+#include "ztl/array/traits.h"
 #include "ztl/type_traits.h"
 
 namespace ZTL {
@@ -74,7 +73,16 @@ public:
 		return const_reverse_iterator(cend());
 	}
 
-	constexpr operator T* () const { return cbegin(); }
+	// casting
+	template<typename Type,
+		typename = typename enable_if<is_array<Type>::value>::type>
+	operator Type& () { return reinterpret_cast<Type&>(*this); }
+	template<typename Type,
+		typename = typename enable_if<is_array<Type>::value>::type>
+	constexpr operator Type const& () const { return reinterpret_cast<Type const&>(*this); }
+
+	T*       data()       { return begin(); }
+	T const* data() const { return cbegin(); }
 
 	// stl algorithm
 	static constexpr size_type size() { return N; }
@@ -82,11 +90,13 @@ public:
 	void fill(value_type const& u) { std::fill_n(begin(), size(), u);}
 
 	template<typename Type,
-		typename = typename enable_if<ZTL::is_array<Type>::value>::type>
-	void swap(Type& other) {
+		typename = typename enable_if<is_array<Type>::value>::type>
+	void swap(Type& other)
+	{
 		std::swap_ranges(begin(), end(), begin(other));
 	}
 
+//private:
 	array_type array;
 };
 
@@ -138,124 +148,5 @@ bool operator>= (const ArrayInterface<ArrayType<T, N, 0, Args ...>, N>& x,
 {
 	return !(x<y);
 }
-
-
-
-template<typename T, size_t N, size_t Idx>
-struct StandardArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr StandardArray() : BaseArray<T, N, Idx>() {}
-
-	// invoke non-default constructors of T
-	template<typename ... Args>
-	constexpr StandardArray(Args&& ... args) :
-		BaseArray<T, N, Idx>(args...), next(std::forward<Args>(args)...) {}
-
-	StandardArray<T, N, Idx+1> next;
-};
-
-template<typename T, size_t N, size_t Idx>
-struct StandardArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr StandardArray() : BaseArray<T, N, Idx>() {}
-
-	// invoke non-default constructors of T
-	template<typename ... Args>
-		constexpr StandardArray(Args&& ... args) :
-			BaseArray<T, N, Idx>(std::forward<Args>(args)...) {}
-};
-
-
-
-template<typename T, size_t N, size_t Idx>
-struct RecursiveArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr RecursiveArray() : BaseArray<T, N, Idx>(), next() {}
-	constexpr RecursiveArray(std::initializer_list<T> const& l) :
-		BaseArray<T, N, Idx>(l), next(l) {}
-
-
-	template<template<typename, size_t> class Container, typename Q, size_t Size, typename ... Args,
-		typename = typename enable_if<(Idx<Size)>::type>
-	constexpr RecursiveArray(Container<Q, Size> const& con, Args&& ... args) :
-		BaseArray<T, N, Idx>(*(con.begin()+Idx)), next(con, std::forward<Args>(args)...)
-	{
-		static_assert(Size + sizeof...(Args) <= N, "too many arguments");
-	}
-
-	template<template<typename, size_t> class Container, typename Q, size_t Size,
-		typename = typename enable_if<(Idx>=Size)>::type>
-	constexpr RecursiveArray(Container<Q, Size> const&) : RecursiveArray() {}
-
-	template<template<typename, size_t> class Container, typename Q, size_t Size, typename Arg0,
-		typename ... Args, typename = typename enable_if<(Idx>=Size)>::type>
-	constexpr RecursiveArray(Container<Q, Size> const& con, Arg0&& arg0, Args&& ... args) :
-		BaseArray<T, N, Idx>(std::forward<Arg0>(arg0)), next(con, std::forward<Args>(args)...) {}
-
-	RecursiveArray<T, N, Idx+1> next;
-};
-
-template<typename T, size_t N, size_t Idx>
-struct RecursiveArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr RecursiveArray() : BaseArray<T, N, Idx>() {}
-	constexpr RecursiveArray(std::initializer_list<T> const& l) :
-		BaseArray<T, N, Idx>(l) {}
-
-
-	template<template<typename, size_t> class Container, typename Type, size_t Size, typename ... Args,
-		typename = typename enable_if<(Idx<Size)>::type>
-	constexpr RecursiveArray(Container<Type, Size> const& con) :
-		BaseArray<T, N, Idx>(*(con.begin()+Idx)) {}
-
-	template<template<typename, size_t> class Container, typename Type, size_t Size,
-		typename ... Args, typename = typename enable_if<(Idx>=Size)>::type>
-	constexpr RecursiveArray(Container<Type, Size> const&, Args&& ... args) :
-		BaseArray<T, N, Idx>(std::forward<Args>(args)...)
-	{
-		static_assert(sizeof...(Args) <= 1, "too many arguments");
-	}
-};
-
-
-
-template<typename T, size_t N, size_t Idx>
-struct EnumArray<T, N, Idx, typename enable_if<(Idx+1<N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx), next() {}
-
-	template<typename ... Args>
-	constexpr EnumArray(Args&& ... args) :
-		BaseArray<T, N, Idx>(Idx, args...), next(std::forward<Args>(args)...) {}
-
-	EnumArray<T, N, Idx+1> next;
-};
-
-template<typename T, size_t N, size_t Idx>
-struct EnumArray<T, N, Idx, typename enable_if<(Idx+1>=N), void>::type> :
-	public BaseArray<T, N, Idx>
-{
-	constexpr EnumArray() : BaseArray<T, N, Idx>(Idx) {}
-
-	template<typename ... Args>
-	constexpr EnumArray(Args&& ... args) :
-		BaseArray<T, N, Idx>(Idx, args...){}
-};
-
-
-
-template<typename T, size_t N>
-using Array = ArrayInterface<StandardArray<T, N>, N>;
-
-template<typename T, size_t N>
-using Enum = ArrayInterface<EnumArray<T, N>, N>;
-
-template<typename T, size_t N>
-using ArrayA = ArrayInterface<RecursiveArray<T, N>, N>;
 
 } // ZTL

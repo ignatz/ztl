@@ -5,14 +5,21 @@
 
 #include <cstdint>
 
+#include "ztl/array/interface.h"
+
+#include "ztl/array/detail/standard.h"
+#include "ztl/array/detail/recursive.h"
+#include "ztl/array/detail/enum.h"
+
 namespace ZTL {
 
-using std::size_t;
+template<typename T, size_t N>
+using Array = ArrayInterface<detail::StandardArray<T, N>, N>;
+
+template<typename T, size_t N>
+using Enum = ArrayInterface<detail::EnumArray<T, N>, N>;
+
+template<typename T, size_t N>
+using ArrayA = ArrayInterface<detail::RecursiveArray<T, N>, N>;
 
 } // namespace ZTL
-
-#include "ztl/array/impl.h"
-
-#ifndef __WITHOUT_BOOST__
-#include "ztl/array/serialize.h"
-#endif // __WITHOUT_BOOST__

@@ -6,20 +6,7 @@
 #include <type_traits>
 
 namespace ZTL {
-
-// forward declarations
-template<typename NoArrayType, size_t N> class ArrayInterface;
-
-template<typename T, size_t N, size_t Idx = 0, typename = void>
-struct StandardArray;
-
-template<typename T, size_t N, size_t Idx = 0, typename = void>
-struct RecursiveArray;
-
-template<typename T, size_t N, size_t Idx = 0, typename = void>
-struct EnumArray;
-
-
+namespace detail {
 
 template<typename T, size_t N, size_t Idx>
 struct BaseArray
@@ -34,4 +21,5 @@ struct BaseArray
 		value(l.begin() + Idx != l.end() ? *(l.begin()+Idx) : T()) {}
 };
 
+} // namespace detail
 } // namespace ZTL

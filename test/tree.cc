@@ -3,6 +3,7 @@
 #include <boost/archive/text_oarchive.hpp>
 
 #include "ztl/tree.h"
+#include "boost/serialization/ztltree.h"
 
 
 using namespace ZTL;

@@ -9,6 +9,9 @@
 
 #include "ztl/array.h"
 #include "ztl/array/range_access.h"
+#include "boost/serialization/ztlarray.h"
+
+#define UNUSED __attribute__((unused))
 
 using namespace ZTL;
 
@@ -184,6 +187,31 @@ TEST(StandardArrayTest, MemoryLayout) {
 		ASSERT_EQ(b[ii], (reinterpret_cast<std::array<bool, N>&>(b)[ii]));
 }
 
+TEST(StandardArrayTest, Casting) {
+	{
+		Array<int, 42> const b;
+		UNUSED int const(& x)[42] = b;
+		UNUSED std::array<int, 42> const& z = b;
+	}
+
+	{
+		Array<int, 42> b;
+		size_t cnt = 0;
+		for (auto& val : b)
+			val = cnt++;
+
+		int (& x)[42] = b;
+		int const (& y)[42] = b;
+		std::array<int, 42>& z = b;
+
+		for (size_t ii=0; ii < b.size(); ++ii)
+		{
+			ASSERT_EQ(ii, x[ii]);
+			ASSERT_EQ(ii, y[ii]);
+			ASSERT_EQ(ii, z[ii]);
+		}
+	}
+}
 
 // Testing the RecursiveArray
 TEST(RecursiveArrayTest, BasicCheck) {
@@ -330,24 +358,25 @@ TEST(EnumArrayTest, Serialization) {
 TEST(GeneralArrayTest, Misc) {
 	// check whether given type is a low level ZTL array implementation
 	ASSERT_TRUE((is_array_impl<typename Array<int, 10>::array_type>::value));
-	ASSERT_TRUE((is_array_impl<StandardArray<int, 10>>::value));
-	ASSERT_TRUE((is_array_impl<EnumArray<int, 10>>::value));
-	ASSERT_TRUE((is_array_impl<StandardArray<int, 10, 9>>::value));
-	ASSERT_TRUE((is_array_impl<RecursiveArray<int, 10, 10>>::value));
+	ASSERT_TRUE((is_array_impl<detail::StandardArray<int, 10>>::value));
+	ASSERT_TRUE((is_array_impl<detail::EnumArray<int, 10>>::value));
+	ASSERT_TRUE((is_array_impl<detail::StandardArray<int, 10, 9>>::value));
+	ASSERT_TRUE((is_array_impl<detail::RecursiveArray<int, 10, 10>>::value));
 	ASSERT_FALSE((is_array_impl<int>::value));
 	ASSERT_FALSE((is_array_impl<std::array<int, 10>>::value));
 
 	// check whether given type is an array type
 	ASSERT_FALSE((is_array<typename Array<int, 10>::array_type>::value));
-	ASSERT_FALSE((is_array<StandardArray<int, 10, 9>>::value));
-	ASSERT_FALSE((is_array<RecursiveArray<int, 10>>::value));
-	ASSERT_FALSE((is_array<EnumArray<int, 10>>::value));
+	ASSERT_FALSE((is_array<detail::StandardArray<int, 10, 9>>::value));
+	ASSERT_FALSE((is_array<detail::RecursiveArray<int, 10>>::value));
+	ASSERT_FALSE((is_array<detail::EnumArray<int, 10>>::value));
 
 	ASSERT_TRUE((is_array<std::array<int, 10>>::value));
 	ASSERT_TRUE((is_array<Array<int, 10>>::value));
 	ASSERT_TRUE((is_array<ArrayA<int, 10>>::value));
 	ASSERT_TRUE((is_array<Enum<int, 10>>::value));
 	ASSERT_FALSE((is_array<int>::value));
+	ASSERT_TRUE((is_array<int[42]>::value));
 }
 
 TEST(GeneralArrayTest, Access) {
@@ -379,3 +408,5 @@ TEST(GeneralArrayTest, Access) {
 				  --cnt;
 			  });
 }
+
+#undef UNUSED

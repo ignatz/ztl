@@ -6,6 +6,8 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include "boost/serialization/ztlarray.h"
+
 #include "ztl/tree/simple.h"
 #include "ztl/type_traits.h"
 

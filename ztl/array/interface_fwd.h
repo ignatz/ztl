@@ -3,5 +3,9 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "ztl/tree/common.h"
-#include "ztl/tree/simple.h"
+namespace ZTL {
+
+// forward declarations
+template<typename NoArrayType, size_t N> class ArrayInterface;
+
+} // namespace ZTL
