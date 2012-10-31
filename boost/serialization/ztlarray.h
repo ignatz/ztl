@@ -8,14 +8,13 @@
 #include <boost/serialization/array.hpp>
 
 #include "ztl/array.h"
-#include "ztl/type_traits.h"
 
 namespace boost {
 namespace serialization {
 
 // ArrayInterface serializer
 template<typename Archiver, template<typename, size_t, size_t, typename...> class Class,
-typename T, size_t N, typename ... Args>
+	typename T, size_t N, typename ... Args>
 void serialize(Archiver& ar, ZTL::ArrayInterface<Class<T, N, 0, Args...>, N>& s,
 	unsigned int const)
 {

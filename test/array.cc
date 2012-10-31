@@ -9,6 +9,7 @@
 
 #include "ztl/array.h"
 #include "ztl/array/range_access.h"
+#include "ztl/array/printer.h"
 #include "boost/serialization/ztlarray.h"
 
 #define UNUSED __attribute__((unused))
@@ -213,6 +214,22 @@ TEST(StandardArrayTest, Casting) {
 			ASSERT_EQ(ii, z[ii]);
 			ASSERT_EQ(ii, c[ii]);
 		}
+	}
+}
+
+TEST(StandardArrayTest, Printing) {
+	{
+		Array<int, 5> b = {0,1,2,3,4};
+		std::stringstream s;
+		s << b;
+		ASSERT_TRUE(s.str() == "[0,1,2,3,4]");
+	}
+
+	{
+		std::array<int, 5> b = {{0,1,2,3,4}};
+		std::stringstream s;
+		s << b;
+		ASSERT_TRUE(s.str() == "[0,1,2,3,4]");
 	}
 }
 
