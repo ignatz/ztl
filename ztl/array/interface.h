@@ -76,7 +76,7 @@ public:
 	// casting
 	template<typename Type, typename = typename enable_if<
 			ZTL::is_array<Type>::value>::type>
-	operator Type const& () const
+	constexpr operator Type const& () const
 	{
 		return reinterpret_cast<Type const&>(*this);
 	}
@@ -108,8 +108,8 @@ public:
 		std::swap_ranges(begin(), end(), begin(other));
 	}
 
-	T*       data()       { return begin(); }
-	T const* data() const { return cbegin(); }
+	pointer                 data()       { return begin(); }
+	constexpr const_pointer data() const { return cbegin(); }
 
 private:
 	array_type array;

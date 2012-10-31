@@ -39,9 +39,9 @@ struct DummyTwoArgs
 
 
 // check for constexpr (compile check)
-Array<int, 10> static_array;
-ArrayA<int, 10> static_arraya;
-Enum<int, 10> static_enum;
+constexpr Array<int, 10> static_array;
+constexpr ArrayA<int, 10> static_arraya;
+constexpr Enum<int, 10> static_enum;
 
 // Testing the StandardArray
 TEST(StandardArrayTest, BasicCheck) {
