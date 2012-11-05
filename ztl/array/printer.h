@@ -7,14 +7,22 @@
 
 #include "ztl/array.h"
 #include "ztl/type_traits.h"
+#include "ztl/array/range_access.h"
 
-template<template<typename, size_t> class Array, typename Type, size_t N,
-	typename = typename ZTL::enable_if<ZTL::is_array<Array<Type, N>>::value>::type>
-std::ostream& operator<< (std::ostream& o, Array<Type, N> const& s)
+template<typename Array>
+typename ZTL::enable_if<
+	ZTL::is_array<Array>::value && (
+	!std::is_array<Array>::value ||
+	!std::is_same<typename std::remove_extent<Array>::type, char>::value),
+	std::ostream&>::type
+operator<< (std::ostream& o, Array const& s)
 {
-	o << "[";
-	for(size_t ii = 0; ii<s.size(); ++ii)
-		o << s[ii] << ((ii < s.size()-1) ? "," : "");
-	o << "]";
+	for(auto const& val : s)
+	{
+		o << val;
+		if(&val == std::end(s)-1)
+			break;
+		o << o.fill();
+	}
 	return o;
 }
