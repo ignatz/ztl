@@ -146,17 +146,26 @@ TEST(StandardArrayTest, ZeroSizeArray) {
 
 
 TEST(StandardArrayTest, Serialization) {
-	Array<int, 42> to_serialize = {0,1,2,3,4,5,6,7};
-	std::stringstream ss;
-	boost::archive::text_oarchive oa(ss);
-	oa << to_serialize;
-	ASSERT_TRUE(ss.str().size());
+	{
+		Array<int, 0> zero_to_serialize;
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << zero_to_serialize;
+	}
 
-	Array<int, 42> target;
-	boost::archive::text_iarchive ia(ss);
-	ia >> target;
-	for (size_t ii=0; ii<to_serialize.size(); ++ii) {
-		ASSERT_EQ(to_serialize[ii], target[ii]);
+	{
+		Array<int, 42> to_serialize = {0,1,2,3,4,5,6,7};
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << to_serialize;
+		ASSERT_TRUE(ss.str().size());
+
+		Array<int, 42> target;
+		boost::archive::text_iarchive ia(ss);
+		ia >> target;
+		for (size_t ii=0; ii<to_serialize.size(); ++ii) {
+			ASSERT_EQ(to_serialize[ii], target[ii]);
+		}
 	}
 }
 
@@ -221,15 +230,24 @@ TEST(StandardArrayTest, Printing) {
 	{
 		Array<int, 5> b = {0,1,2,3,4};
 		std::stringstream s;
+		s.fill(',');
 		s << b;
-		ASSERT_TRUE(s.str() == "[0,1,2,3,4]");
+		ASSERT_EQ(s.str(), std::string("0,1,2,3,4"));
 	}
 
 	{
 		std::array<int, 5> b = {{0,1,2,3,4}};
 		std::stringstream s;
+		s.fill(':');
 		s << b;
-		ASSERT_TRUE(s.str() == "[0,1,2,3,4]");
+		ASSERT_TRUE(s.str() == "0:1:2:3:4");
+	}
+
+	{
+		int b[5] = {0,1,2,3,4};
+		std::stringstream s;
+		s << b;
+		ASSERT_TRUE(s.str() == "0 1 2 3 4");
 	}
 }
 

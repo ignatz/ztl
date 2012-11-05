@@ -22,5 +22,12 @@ void serialize(Archiver& ar, ZTL::ArrayInterface<Class<T, N, 0, Args...>, N>& s,
 	ar & make_nvp("data", reinterpret_cast<boost::array<T, N>&>(s));
 }
 
+template<typename Archiver, template<typename, size_t, size_t, typename...> class Class,
+	typename T, typename ... Args>
+void serialize(Archiver&, ZTL::ArrayInterface<Class<T, 0, 0, Args...>, 0>&,
+	unsigned int const)
+{
+}
+
 } // namespace serialization
 } // namespace boost
