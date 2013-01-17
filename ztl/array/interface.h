@@ -75,14 +75,14 @@ public:
 
 	// casting
 	template<typename Type, typename = typename enable_if<
-			ZTL::is_array<Type>::value>::type>
+			ZTL::is_array<Type>::value && array_length<Type>::value == N>::type>
 	constexpr operator Type const& () const
 	{
 		return reinterpret_cast<Type const&>(*this);
 	}
 
 	template<typename Type, typename = typename enable_if<
-			std::is_array<Type>::value>::type>
+			std::is_array<Type>::value && array_length<Type>::value == N>::type>
 	operator Type& ()
 	{
 		return reinterpret_cast<Type&>(*this);

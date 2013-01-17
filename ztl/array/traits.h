@@ -58,4 +58,21 @@ struct is_array_impl<Class<T, N, Idx, Args...>>
 		>::value };
 };
 
+
+template<typename T, typename = void>
+struct array_length;
+
+template<typename T, size_t N>
+struct array_length<T[N], void>
+{
+	enum : size_t { value = N };
+};
+
+template<template<typename, size_t> class Array, typename T, size_t N>
+struct array_length<Array<T,N>,
+	typename std::enable_if<is_array<Array<T,N>>::value>::type>
+{
+	enum : size_t { value = N };
+};
+
 } // namespace ZTL
