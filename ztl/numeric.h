@@ -3,12 +3,10 @@
 // Copyright (c) 2013, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <cstdint>
+#include <cstdlib>
 #include <type_traits>
 
 namespace ZTL {
-
-using std::size_t;
 
 template<typename T, typename C>
 struct integral_unpack;

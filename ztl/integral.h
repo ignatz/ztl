@@ -3,14 +3,12 @@
 // Copyright (c) 2013, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <cstdint>
+#include <cstdlib>
 #include <type_traits>
 
 #include "ztl/numeric.h"
 
 namespace ZTL {
-
-using std::size_t;
 
 // some integral type aliases
 template<typename T, int N>

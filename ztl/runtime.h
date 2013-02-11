@@ -4,15 +4,18 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <type_traits>
+#include <functional>
 #include <tuple>
 
-#include "ztl/type_traits.h"
-#include "ztl/pack.h"
+#include "ztl/pack/pack.h"
+#include "ztl/pack/size.h"
+#include "ztl/pack/range.h"
+#include "ztl/pack/get.h"
 
 namespace ZTL {
 
 template<size_t N, typename Arg0, typename ... Args,
-	typename = typename enable_if<!N>::type>
+	typename = typename std::enable_if<!N>::type>
 constexpr typename get<0, pack<Arg0, Args...>>::type
 arg(Arg0&& arg0, Args&& ...) noexcept
 {
@@ -20,7 +23,7 @@ arg(Arg0&& arg0, Args&& ...) noexcept
 }
 
 template<size_t N, typename Arg0, typename ... Args,
-	typename = typename enable_if<(N>0)>::type>
+	typename = typename std::enable_if<(N>0)>::type>
 constexpr typename get<N, pack<Arg0, Args...>>::type
 arg(Arg0 &&, Args&& ... args) noexcept
 {

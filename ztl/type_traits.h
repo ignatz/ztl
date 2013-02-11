@@ -5,16 +5,18 @@
 
 #include <type_traits>
 
-#include "ztl/pack.h"
-#include "ztl/integral.h"
+#include "ztl/pack/pack.h"
+#include "ztl/pack/find.h"
 #include "ztl/numeric.h"
 
 namespace ZTL {
 
 // type relations
 template<typename T, typename ... Args>
-using is_same = bool_<min<std::is_same<T, Args>::value...>::value>;
-
+struct is_same
+{
+	enum : bool { value = min<std::is_same<T, Args>::value...>::value };
+};
 
 
 // enables

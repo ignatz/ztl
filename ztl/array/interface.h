@@ -3,7 +3,7 @@
 // Copyright (c) 2013, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <cstdint>
+#include <cstdlib>
 #include <cassert>
 #include <type_traits>
 #include <initializer_list>
@@ -13,8 +13,6 @@
 #include "ztl/type_traits.h"
 
 namespace ZTL {
-
-using std::size_t;
 
 template<template<typename, size_t, size_t, typename> class ArrayType, typename T, size_t N>
 class ArrayInterface<ArrayType<T, N, 0, void>, N>
@@ -29,7 +27,7 @@ public:
 	typedef value_type const&                      const_reference;
 	typedef value_type*                            iterator;
 	typedef value_type const*                      const_iterator;
-	typedef std::size_t                            size_type;
+	typedef size_t                                 size_type;
 	typedef std::ptrdiff_t                         difference_type;
 	typedef std::reverse_iterator<iterator>        reverse_iterator;
 	typedef std::reverse_iterator<const_iterator>  const_reverse_iterator;
