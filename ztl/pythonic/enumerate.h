@@ -5,32 +5,49 @@
 
 #include <type_traits>
 #include <tuple>
+#include <functional>
 
 #include <boost/iterator/iterator_facade.hpp>
 
-#include "ztl/runtime.h"
+#include "ztl/pack.h"
 
 namespace ZTL {
 
 template<typename Container>
-using enum_wrapped_value = std::pair<size_t,
-	typename Container::value_type&>;
+struct enum_pair_traits
+{
+	typedef typename std::conditional<
+		std::is_const<Container>::value,
+		typename Container::const_reference,
+		typename Container::reference
+	>::type reference;
+
+	typedef std::pair<size_t, reference> type;
+};
+
 
 template<typename Container>
 struct enum_pair_iter :
 	public boost::iterator_facade<
 		enum_pair_iter<Container>,
-		enum_wrapped_value<Container>,
+		typename enum_pair_traits<Container>::type,
 		boost::incrementable_traversal_tag,
-		enum_wrapped_value<Container>
+		typename enum_pair_traits<Container>::type
 	>
 {
+private:
+	typedef typename std::conditional<
+		std::is_const<Container>::value,
+		typename Container::const_iterator,
+		typename Container::iterator
+	>::type iterator;
+
 public:
 	enum_pair_iter()
 		: _cnt(0), _it()
 	{}
 
-	enum_pair_iter(typename Container::iterator it)
+	enum_pair_iter(iterator it)
 		: _cnt(0), _it(it)
 	{}
 
@@ -51,7 +68,7 @@ private:
 		++_cnt;
 	}
 
-	enum_wrapped_value<Container>
+	typename enum_pair_traits<Container>::type
 	dereference() const
 	{
 		return make_pair(_cnt, std::ref(*_it));
@@ -59,7 +76,7 @@ private:
 
 	// members
 	size_t _cnt;
-	typename Container::iterator _it;
+	iterator _it;
 };
 
 
@@ -67,11 +84,6 @@ template<typename Container>
 struct enumerate_proxy
 {
 public:
-	typedef enum_wrapped_value<Container>   value_type;
-	typedef typename Container::size_type   size_type;
-	typedef enum_pair_iter<Container>       iterator;
-	typedef enum_pair_iter<Container const> const_iterator;
-
 	enumerate_proxy(Container& it) :
 		_ref(it)
 	{}
@@ -81,14 +93,14 @@ public:
 		return _ref.size();
 	}
 
-	iterator begin()
+	enum_pair_iter<Container> begin()
 	{
-		return _ref.begin();
+		return enum_pair_iter<Container>(_ref.begin());
 	};
 
-	iterator end()
+	enum_pair_iter<Container> end()
 	{
-		return _ref.end();
+		return enum_pair_iter<Container>(_ref.end());
 	};
 
 private:

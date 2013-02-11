@@ -7,9 +7,17 @@ using namespace ZTL;
 TEST(Pythonic, Enumerate) {
 	typedef std::vector<int> type;
 	type vec(10, 42);
-	size_t probe = 0;
+	size_t probe;
 
+	probe = 0;
 	for (auto v : enumerate(vec)) {
+		ASSERT_EQ(probe++, v.first);
+		ASSERT_EQ(42, v.second);
+	}
+
+	probe = 0;
+	type const& ref = vec;
+	for (auto v : enumerate(ref)) {
 		ASSERT_EQ(probe++, v.first);
 		ASSERT_EQ(42, v.second);
 	}
@@ -27,6 +35,12 @@ TEST(Pythonic, Zip) {
 	std::vector<int> vec1(10, 5);
 
 	for(auto v : zip(vec0, vec1)) {
+		ASSERT_EQ(42, std::get<0>(v));
+		ASSERT_EQ( 5, std::get<1>(v));
+	}
+
+	std::vector<int> const& ref = vec1;
+	for(auto v : zip(vec0, ref)) {
 		ASSERT_EQ(42, std::get<0>(v));
 		ASSERT_EQ( 5, std::get<1>(v));
 	}

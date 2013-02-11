@@ -5,6 +5,7 @@
 
 #include <type_traits>
 #include <tuple>
+#include <functional>
 
 #include <boost/iterator/iterator_facade.hpp>
 
@@ -12,34 +13,46 @@
 
 namespace ZTL {
 
-// template aliases somehow don't work in this context
-//template<typename ... Containers>
-//using zip_wrapped_value = std::tuple<typename Containers::value_type& ...>;
+template<typename ... Containers>
+struct zip_tuple_traits
+{
+	typedef std::tuple<
+		typename std::conditional<
+			std::is_const<Containers>::value,
+			typename Containers::const_reference,
+			typename Containers::reference
+		>::type ...
+	> value_type;
 
-//template<typename ... Containers>
-//using zip_wrapped_iter = std::tuple<typename Containers::iterator...>;
+	typedef std::tuple<
+		typename std::conditional<
+			std::is_const<Containers>::value,
+			typename Containers::const_iterator,
+			typename Containers::iterator
+		>::type ...
+	> iterator_type;
+};
+
 
 template<typename ... Containers>
 struct zip_tuple_iter :
 	public boost::iterator_facade<
 		zip_tuple_iter<Containers...>,
-		std::tuple<typename Containers::value_type& ...>,
+		typename zip_tuple_traits<Containers...>::value_type,
 		boost::incrementable_traversal_tag,
-		std::tuple<typename Containers::value_type& ...>
+		typename zip_tuple_traits<Containers...>::value_type
 	>
 {
 public:
-	typedef std::tuple<
-		typename Containers::value_type& ...> _value_type;
-	typedef std::tuple<
-		typename Containers::iterator...>     _iter_type;
+	typedef typename zip_tuple_traits<Containers...>::value_type value_type;
+	typedef typename zip_tuple_traits<Containers...>::iterator_type iterator_type;
 
 	zip_tuple_iter() :
 		_its()
 	{}
 
 	//zip_tuple_iter(zip_wrapped_iter<Containers...> its)
-	zip_tuple_iter(_iter_type its)
+	zip_tuple_iter(iterator_type const& its)
 		: _its(its)
 	{}
 
@@ -59,7 +72,7 @@ private:
 		_increment(typename range<size<pack<Containers...>>::value>::type {});
 	}
 
-	_value_type
+	value_type
 	dereference() const
 	{
 		return _dereference(typename range<size<pack<Containers...>>::value>::type {});
@@ -68,10 +81,10 @@ private:
 	// helpers
 	template<template<typename ...> class Range,
 		typename ... Ns>
-	_value_type
+	value_type
 	_dereference(Range<Ns...>) const
 	{
-		return _value_type(std::ref(*std::get<Ns::value>(_its))...);
+		return value_type(std::ref(*std::get<Ns::value>(_its))...);
 	}
 
 	template<template<typename ...> class Range,
@@ -82,7 +95,7 @@ private:
 	}
 
 	// member, holding iterator position
-	_iter_type _its;
+	iterator_type _its;
 };
 
 
@@ -96,12 +109,14 @@ public:
 
 	zip_tuple_iter<Containers...> begin()
 	{
-		return _begin(typename range<size<pack<Containers...>>::value>::type {});
+		return _begin(typename
+			range<size<pack<Containers...>>::value>::type {});
 	};
 
 	zip_tuple_iter<Containers...> end()
 	{
-		return _end(typename range<size<pack<Containers...>>::value>::type {});
+		return _end(typename
+			range<size<pack<Containers...>>::value>::type {});
 	};
 
 private:
