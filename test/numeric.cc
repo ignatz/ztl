@@ -45,28 +45,28 @@ TEST(Numeric, Pow) {
 
 TEST(Numeric, Factorial) {
 	using namespace ZTL;
-	ASSERT_EQ((mult<1,2,3,4,5>::value), (factorial<5>::value));
-	ASSERT_EQ((mult<1,2,3,4,5,6,7,8>::value), (factorial<8>::value));
-	ASSERT_EQ(1, (factorial<0>::value));
+	ASSERT_EQ(size_t(mult<1,2,3,4,5>::value), (factorial<5>::value));
+	ASSERT_EQ(size_t(mult<1,2,3,4,5,6,7,8>::value), (factorial<8>::value));
+	ASSERT_EQ(1u, (factorial<0>::value));
 }
 
 TEST(Numeric, Log2) {
-	ASSERT_EQ( 0 , (ZTL::log2<1>::value));
-	ASSERT_EQ( 1 , (ZTL::log2<2>::value));
-	ASSERT_EQ( 2 , (ZTL::log2<4>::value));
-	ASSERT_EQ( 6 , (ZTL::log2<64>::value));
-	ASSERT_EQ(10 , (ZTL::log2<1024>::value));
-	ASSERT_EQ(10 , (ZTL::log2<1025>::value));
-	ASSERT_EQ(10 , (ZTL::log2<2047>::value));
+	ASSERT_EQ( 0u, (ZTL::log2<1>::value));
+	ASSERT_EQ( 1u, (ZTL::log2<2>::value));
+	ASSERT_EQ( 2u, (ZTL::log2<4>::value));
+	ASSERT_EQ( 6u, (ZTL::log2<64>::value));
+	ASSERT_EQ(10u, (ZTL::log2<1024>::value));
+	ASSERT_EQ(10u, (ZTL::log2<1025>::value));
+	ASSERT_EQ(10u, (ZTL::log2<2047>::value));
 }
 
 TEST(Numeric, Fibonacci) {
 	using namespace ZTL;
-	ASSERT_EQ(0 , fibonacci<0>::value);
-	ASSERT_EQ(1 , fibonacci<1>::value);
-	ASSERT_EQ(8 , fibonacci<6>::value);
-	ASSERT_EQ(13, fibonacci<7>::value);
-	ASSERT_EQ(21, fibonacci<8>::value);
+	ASSERT_EQ( 0u, fibonacci<0>::value);
+	ASSERT_EQ( 1u, fibonacci<1>::value);
+	ASSERT_EQ( 8u, fibonacci<6>::value);
+	ASSERT_EQ(13u, fibonacci<7>::value);
+	ASSERT_EQ(21u, fibonacci<8>::value);
 }
 
 

@@ -36,21 +36,21 @@ typedef SimpleTree<
 constexpr simpletree_type stree;
 
 TEST(SimpleTree, BasicCheck) {
-	ASSERT_EQ(4,   stree.size);
-	ASSERT_EQ(2,   stree[0].size);
-	ASSERT_EQ(3,   stree[0][0].size);
-	ASSERT_EQ(100,   stree[0][0][0].size);
+	ASSERT_EQ(4u,   stree.size);
+	ASSERT_EQ(2u,   stree[0].size);
+	ASSERT_EQ(3u,   stree[0][0].size);
+	ASSERT_EQ(100u, stree[0][0][0].size);
 
-	ASSERT_EQ(0,   stree.level);
-	ASSERT_EQ(1,   stree[0].level);
-	ASSERT_EQ(2,   stree[0][0].level);
-	ASSERT_EQ(3,   stree[0][0][0].level);
+	ASSERT_EQ(0u,   stree.level);
+	ASSERT_EQ(1u,   stree[0].level);
+	ASSERT_EQ(2u,   stree[0][0].level);
+	ASSERT_EQ(3u,   stree[0][0][0].level);
 }
 
 TEST(SimpleTree, Initialization) {
 	simpletree_type st(42, 'A', 'B', 3.141);
 
-	ASSERT_EQ(42,   st[0].value());
+	ASSERT_EQ( 42,   st[0].value());
 	ASSERT_EQ('A',   st[3][1].value());
 	ASSERT_EQ('B',   st[3][1][2].value());
 }

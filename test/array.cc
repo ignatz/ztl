@@ -134,9 +134,9 @@ TEST(StandardArrayTest, Comparisons) {
 
 
 TEST(StandardArrayTest, Padding) {
-	ASSERT_EQ(10, sizeof(Array<char, 10>));
-	ASSERT_EQ(1, sizeof(Array<char, 1>));
-	ASSERT_EQ(1, sizeof(Array<char, 0>));
+	ASSERT_EQ(10u, sizeof(Array<char, 10>));
+	ASSERT_EQ( 1u, sizeof(Array<char, 1>));
+	ASSERT_EQ( 1u, sizeof(Array<char, 0>));
 }
 
 
@@ -216,7 +216,7 @@ TEST(StandardArrayTest, Casting) {
 
 		std::array<int, 42> c(b);
 
-		for (size_t ii=0; ii < b.size(); ++ii)
+		for (int ii=0; ii < int(b.size()); ++ii)
 		{
 			ASSERT_EQ(ii, x[ii]);
 			ASSERT_EQ(ii, y[ii]);
@@ -441,7 +441,7 @@ TEST(GeneralArrayTest, Access) {
 
 	Enum<int, 10> ze;
 	std::for_each(rbegin(ze), rend(ze), [](int i) {
-				  static size_t cnt = 9;
+				  static int cnt = 9;
 				  ASSERT_EQ(cnt, i);
 				  --cnt;
 			  });
