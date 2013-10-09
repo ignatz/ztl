@@ -12,14 +12,19 @@ namespace ZTL {
 template <typename T>
 inline std::string typestring(T t)
 {
-	std::type_info const& ti = typeid(t);
-	return abi::__cxa_demangle(ti.name(), nullptr, nullptr, nullptr);
+	char * name = abi::__cxa_demangle(ti.name(), nullptr, nullptr, nullptr);
+	std::string ret(name);
+	free(name);
+	return ret;
 }
 
 template <typename T>
 inline std::string typestring()
 {
-	return abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+	char * name = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+	std::string ret(name);
+	free(name);
+	return ret;
 }
 
 } // namespace ZTL
