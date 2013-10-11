@@ -8,34 +8,26 @@
 #include <string>
 #include <memory>
 
-namespace {
-
-struct FreeCString
-{
-	void operator () (char* s) const
-	{
-		free(s);
-	};
-};
-
-}
-
 namespace ZTL {
+
+inline std::string demangle(std::string const& n)
+{
+	int status {};
+	std::unique_ptr<char[], decltype(&free)> name(
+		abi::__cxa_demangle(n.c_str(), nullptr, 0, &status), &free);
+	return status==0 ? name.get() : "__cxa_demangle error";
+}
 
 template <typename T>
 inline std::string typestring(T t)
 {
-	std::unique_ptr<char, FreeCString> name(
-		abi::__cxa_demangle(typeid(t).name(), nullptr, nullptr, nullptr));
-	return std::string(name.get());
+	return demangle(typeid(t).name());
 }
 
 template <typename T>
 inline std::string typestring()
 {
-	std::unique_ptr<char, FreeCString> name(
-		abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr));
-	return std::string(name.get());
+	return demangle(typeid(T).name());
 }
 
 } // namespace ZTL
